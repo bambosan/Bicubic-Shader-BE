@@ -26,7 +26,7 @@ for bicubic shader, this is a setting where the user can adjust the presence of 
 
 if the shader is only used for taking screenshots or videos then it's better to use "regular" setting but if it is used for survival or building use "no cloud"
 
-<span style="color:red">note! Restart Minecraft every you make a setting change</span>
+![#f03c15](https://via.placeholder.com/15/f03c15/000000?text=+) `note! Restart Minecraft every you make a setting change`
 
 this is a regular setting
 <img src="https://github.com/Mcbamboo/bicubic-shaders-be/blob/f369f94982ad7ef465a6cb3bca21244fd182a3fa/ss/20210506_023016.jpg">
