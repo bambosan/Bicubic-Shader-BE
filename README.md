@@ -1,5 +1,5 @@
 # bicubic-shaders-be
-![bicubic shader](https://github.com/Mcbamboo/bicubic-shaders-be/blob/e7a605f0a33dc67e66e54cf42d8385b0770cc9fc/ss/20210506_022909.jpg)
+![bicubic shader](https://github.com/Mcbamboo/bicubic-shaders-be/blob/bc12a105fcdf167e8b56220abfe1cb9c04f6a1f2/ss/20210506_041441.jpg)
 
 ### Features
 * beautiful soft clouds
