@@ -1,7 +1,7 @@
 # bicubic-shaders-be
 <img src="https://github.com/Mcbamboo/bicubic-shaders-be/blob/e7a605f0a33dc67e66e54cf42d8385b0770cc9fc/ss/20210506_022909.jpg">
 
-## Features
+### Features
 * beautiful soft clouds
 * beautiful sky
 * water wave
@@ -19,7 +19,7 @@
 * rain reflection
 * and more..
 
-## Subpacks
+### Subpacks
 <img src="https://github.com/Mcbamboo/bicubic-shaders-be/blob/f369f94982ad7ef465a6cb3bca21244fd182a3fa/ss/20210506_022836.jpg">
 
 for bicubic shader, this is a setting where the user can adjust the presence of a cloud or not on the shader
