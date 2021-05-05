@@ -16,7 +16,7 @@ vec4 rclouds(hp vec2 pos){
     float den = 2.2-rain,a = 0.;
     for(int i=0; i<10; i++){
         float cm = fbm(pos,den);
-        den *= 2.056;
+        den *= .9345;
         pos *= .966;
         if(cm>0.){
             vec3 cc = ccc();
