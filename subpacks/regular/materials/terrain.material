@@ -1,0 +1,26 @@
+{
+  "materials": {
+    "version": "1.0.0",
+    "terrain_base": {
+      "+defines": [ "rendercloud" ],
+      "vertexShader": "shaders/terrain.vsh",
+      "vrGeometryShader": "shaders/renderchunk.geometry",
+      "fragmentShader": "shaders/terrain.fsh",
+      "variants": [
+        { "fog": { "+defines": [ "FOG" ] } },
+        { "lit": { "+defines": [ "ALWAYS_LIT" ] } },
+        { "underwater": { "+defines": [ "UNDERWATER" ] } },
+        { "fog.underwater": { "+defines": [ "UNDERWATER" ] } },
+        { "fading": { "+defines": [ "FOG", "ALLOW_FADE" ] } }
+      ]
+    },
+    "terrain_blend:terrain_base": {
+      "+defines": [ "BLEND" ],
+      "+states": ["Blending"],
+      "+variants": [
+        { "underwater": { "+defines": [ "UNDERWATER" ] } },
+        { "fog.underwater": { "+defines": [ "UNDERWATER" ] } }
+      ]
+    }
+  }
+}

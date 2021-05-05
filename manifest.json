@@ -1,0 +1,37 @@
+{
+    "format_version": 2,
+    "metadata": {
+        "authors": [
+            "Mcbamboo"
+        ],
+        "url": "https://github.com/Mcbamboo/Nori-Shaders-BE",
+        "license": "GNU General Public License v3.0"
+    },
+    "header": {
+        "name": "Bicubic shaders be 3.0",
+        "description": "a shader for minecraft be",
+        "uuid": "6d94609f-1ba8-b723-8300-5c1aef48813f",
+        "version": [0, 3, 0],
+        "min_engine_version": [1, 14, 1]
+    },
+    "modules": [
+        {
+            "description": "a shader for minecraft be",
+            "type": "resources",
+            "uuid": "85697f97-5ed5-9111-a6d9-cb544188a3ca",
+            "version": [0, 3, 0]
+        }
+    ],
+    "subpacks": [
+        {
+            "folder_name": "nocloud",
+            "name": "no cloud",
+            "memory_tier": 1
+        },
+        {
+            "folder_name": "regular",
+            "name": "regular",
+            "memory_tier": 2
+        }
+    ]
+}
