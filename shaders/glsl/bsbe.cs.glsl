@@ -61,7 +61,7 @@ vec3 csc(float skyh){
 }
 vec3 sr(vec3 npos, vec3 uppos, float atten){
 	float zenith = max0(dot(npos,uppos));
-	float mies = pow(1.-length(npos.zy),2.)*15.;
+	float mies = pow(1.-length(npos.zy),3.)*15.;
 	float hor = pow(1.-zenith,atten)+mies*dfog;
 	vec3 tsc = csc(hor);
 	return tsc;
