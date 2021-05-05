@@ -4,8 +4,8 @@
         "authors": [
             "Mcbamboo"
         ],
-        "url": "https://github.com/Mcbamboo/Nori-Shaders-BE",
-        "license": "GNU General Public License v3.0"
+        "url": "https://github.com/Mcbamboo/bicubic-shaders-be",
+        "license": "MIT License"
     },
     "header": {
         "name": "Bicubic shaders be 3.0",
