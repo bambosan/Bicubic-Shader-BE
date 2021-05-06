@@ -16,9 +16,9 @@ float hash(vec2 p){ return fract(cos(p.x+p.y*332.)*335.552); }
 float noise( vec2 x){
 	vec2 p = floor(x);
 	vec2 f = fract(x);
-		f = f*f*(3.0-2.0*f);
-	float n = p.x + p.y*57.0;
-	return mix(mix(hash(n),hash(n+1.0),f.x),mix(hash(n+57.0),hash(n+58.0),f.x),f.y);
+		f = f*f*(3.-2.*f);
+	float n = p.x+p.y*57.;
+	return mix(mix(hash(n),hash(n+1.),f.x),mix(hash(n+57.),hash(n+58.),f.x),f.y);
 }
 float vnt(vec2 p){
 	vec2 fp = fract(p);
@@ -35,10 +35,10 @@ float vnt(vec2 p){
 }
 uniform float TOTAL_REAL_WORLD_TIME;
 float fbm(vec2 pos,float den){
-	float tot = 0.,s = 1.;
+	float tot = 0.,at = 1.;
 	pos += TOTAL_REAL_WORLD_TIME*.001;
 	for(int i=0; i<3; i++){
-		tot += vnt(pos)*den/s; s *= 2.2;
+		tot += vnt(pos)*den/at; at *= 2.2;
 		pos *= 2.8;
 		pos += TOTAL_REAL_WORLD_TIME*.03;
 	}
@@ -46,7 +46,7 @@ float fbm(vec2 pos,float den){
 }
 vec3 tl(vec3 col){ return pow(col,vec3(2.2)); }
 vec3 ccc(){
-	vec3 cloudc = mix(mix(mix(vec3(1,1,1),vec3(.15,.2,.29),nfog),vec3(1.,.3,.5),dfog),FOG_COLOR.rgb*1.5,rain);
+	vec3 cloudc = mix(mix(mix(vec3(1),vec3(.15,.2,.29),nfog),vec3(1.,.3,.5),dfog),FOG_COLOR.rgb*1.5,rain);
 		cloudc = tl(cloudc);
 	return cloudc;
 }

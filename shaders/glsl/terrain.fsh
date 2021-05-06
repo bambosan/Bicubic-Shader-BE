@@ -23,6 +23,7 @@
 varying vec4 color;
 varying highp vec3 cpos;
 varying highp vec3 wpos;
+varying highp float wflag;
 
 #ifdef UNDERWATER
 varying float fogr;
