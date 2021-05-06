@@ -6,35 +6,35 @@
 #define dfog saturate((FOG_COLOR.r-.15)*1.25)*(1.-FOG_COLOR.b)
 
 #ifdef GL_FRAGMENT_PRECISION_HIGH
-#define hp highp
+precision highp float;
 #else
-#define mp mediump
+precision mediump float;
 #endif
 
-float hash(hp float n){ return fract(sin(n)*43758.5453); }
-float hash(hp vec2 p){ return fract(cos(p.x+p.y*332.)*335.552); }
-float noise(hp vec2 x){
-	hp vec2 p = floor(x);
-	hp vec2 f = fract(x);
+float hash(float n){ return fract(sin(n)*43758.5453); }
+float hash(vec2 p){ return fract(cos(p.x+p.y*332.)*335.552); }
+float noise( vec2 x){
+	vec2 p = floor(x);
+	vec2 f = fract(x);
 		f = f*f*(3.0-2.0*f);
-	hp float n = p.x + p.y*57.0;
+	float n = p.x + p.y*57.0;
 	return mix(mix(hash(n),hash(n+1.0),f.x),mix(hash(n+57.0),hash(n+58.0),f.x),f.y);
 }
-float vnt(hp vec2 p){
-	hp vec2 fp = fract(p);
-	hp vec2 ip = floor(p);
-	hp float s = 1.;
+float vnt(vec2 p){
+	vec2 fp = fract(p);
+	vec2 ip = floor(p);
+	float s = 1.;
 	for(int i=0; i<2; i++){
 		for(int j=0; j<2; j++){
-			hp vec2 nb = vec2(float(j),float(i));
-			hp vec2 po = .3*sin(600.*vec2(hash(ip+nb)));
+			 vec2 nb = vec2(float(j),float(i));
+			 vec2 po = .3*sin(600.*vec2(hash(ip+nb)));
 			s = min(s,length(nb+po-fp));
 		}
 	}
 	return s;
 }
-uniform hp float TOTAL_REAL_WORLD_TIME;
-float fbm(hp vec2 pos,float den){
+uniform float TOTAL_REAL_WORLD_TIME;
+float fbm(vec2 pos,float den){
 	float tot = 0.,s = 1.;
 	pos += TOTAL_REAL_WORLD_TIME*.001;
 	for(int i=0; i<3; i++){
@@ -59,7 +59,7 @@ vec3 csc(float skyh){
 	if(FOG_CONTROL.x==0.)skyc=tl(FOG_COLOR.rgb);
 	return skyc;
 }
-vec3 sr(vec3 npos, vec3 uppos, float atten){
+vec3 sr(vec3 npos,vec3 uppos,float atten){
 	float zenith = max0(dot(npos,uppos));
 	float mies = pow(1.-length(npos.zy),3.)*15.;
 	float hor = pow(1.-zenith,atten)+mies*dfog;
@@ -70,6 +70,6 @@ vec3 tonemap(vec3 col){
 	col *= 1.3;
  	col = col/(.9813*col+.1511);
 	float lum = dot(col,vec3(.2125,.7154,.0721));
-	col = mix(vec3(lum),col,1.);
+	col = mix(vec3(lum),col,1.05);
 	return col;
 }

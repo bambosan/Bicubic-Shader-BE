@@ -9,7 +9,7 @@ varying highp vec3 pos;
 #include "bsbe.cs.glsl"
 
 #ifdef rendercloud
-vec4 rclouds(hp vec2 pos){
+vec4 rclouds(vec2 pos){
     vec3 tot = vec3(1)-nfog*.5;
     vec3 sha = mix(FOG_COLOR.rgb,FOG_COLOR.rgb*2.5,rain);
         sha = tl(sha);
@@ -32,15 +32,16 @@ vec4 rclouds(hp vec2 pos){
 
 void main(){
 
-    hp vec3 ajp = vec3(pos.x,-pos.y+.128,-pos.z);
-    hp vec3 uppos = normalize(vec3(0.,abs(ajp.y),0.));
-    hp vec3 npos = normalize(ajp);
-    hp vec3 dpos = npos/npos.y;
-    hp float zenith = max0(dot(npos,uppos));
+    vec3 ajp = vec3(pos.x,-pos.y+.128,-pos.z);
+    vec3 uppos = normalize(vec3(0.,abs(ajp.y),0.));
+    vec3 npos = normalize(ajp);
+    float zenith = max0(dot(npos,uppos));
 
     vec3 und = sr(npos,uppos,3.);
     vec4 color = vec4(und,pow(1.-zenith,5.));
+
 #ifdef rendercloud
+        npos = npos/npos.y;
     vec4 cloud = rclouds(dpos.xz*.8);
         color = mix(vec4(und,pow(1.-zenith,5.)),cloud,cloud.a*.65*smoothstep(1.,.95,length(npos.xz))*float(zenith>0.));
 #endif

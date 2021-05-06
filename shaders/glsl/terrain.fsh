@@ -38,34 +38,34 @@ LAYOUT_BINDING(2) uniform sampler2D TEXTURE_2;
 
 #include "bsbe.cs.glsl"
 
-float cwav(hp vec2 pos){
-	hp vec2 mov = vec2(0.,TOTAL_REAL_WORLD_TIME);
-	hp vec2 wp = (pos*1.5)-mov*1.5;
-	hp vec2 wp1 = pos+mov;
-	hp float wave = 1.-noise(wp);
+float cwav(vec2 pos){
+	vec2 mov = vec2(0.,TOTAL_REAL_WORLD_TIME);
+	vec2 wp = (pos*1.5)-mov*1.5;
+	vec2 wp1 = pos+mov;
+	float wave = 1.-noise(wp);
 		wave += noise(wp1);
 	return wave;
 }
-vec3 gett(vec3 nv){
+vec3 gett(vec3 n){
 	vec3 t = vec3(0,0,0);
-	if(nv.x>0.){ t = vec3(0,0,-1);
-	} else if(-nv.x>0.){ t = vec3(0,0,1);
-	} else if(nv.y>0.){ t = vec3(1,0,0);
-	} else if(-nv.y>0.){ t = vec3(1,0,0);
-	} else if(nv.z>0.){ t = vec3(1,0,0);
-	} else if(-nv.z>0.){ t = vec3(-1,0,0);
+	if(n.x>0.){ t = vec3(0,0,-1);
+	} else if(-n.x>0.){ t = vec3(0,0,1);
+	} else if(n.y>0.){ t = vec3(1,0,0);
+	} else if(-n.y>0.){ t = vec3(1,0,0);
+	} else if(n.z>0.){ t = vec3(1,0,0);
+	} else if(-n.z>0.){ t = vec3(-1,0,0);
 	}
 	return normalize(t);
 }
-vec3 calcnw(vec3 nv){
-	hp float w1 = cwav(cpos.xz);
-	hp float w2 = cwav(vec2(cpos.x-.02,cpos.z));
-	hp float w3 = cwav(vec2(cpos.x,cpos.z-.02));
-	hp float dx = w1-w2,dy=w1-w3;
+vec3 calcnw(vec3 n){
+	float w1 = cwav(cpos.xz);
+	float w2 = cwav(vec2(cpos.x-.02,cpos.z));
+	float w3 = cwav(vec2(cpos.x,cpos.z-.02));
+	float dx = w1-w2,dy=w1-w3;
 	vec3 wn = normalize(vec3(dx,dy,1.))*.5+.5;
-	vec3 t = gett(nv);
-	vec3 b = normalize(cross(t,nv));
-	mat3 tbn = mat3(t.x,b.x,nv.x,t.y,b.y,nv.y,t.z,b.z,nv.z);
+	vec3 t = gett(n);
+	vec3 b = normalize(cross(t,n));
+	mat3 tbn = mat3(t.x,b.x,n.x,t.y,b.y,n.y,t.z,b.z,n.z);
 		wn = wn*2.-1.;
 		wn = normalize(wn*tbn);
 	return wn;
@@ -89,18 +89,18 @@ vec4 reflection(vec4 diff,vec3 n,vec3 uppos,vec3 lsc,float ndv,float ndh){
 	diff.rgb *= max(uv1.x,uv1.y);
 	return diff;
 }
-vec3 illum(vec3 diff,vec3 nv,vec3 lsc,float lmb,bool waterd){
+vec3 illum(vec3 diff,vec3 n,vec3 lsc,float lmb){
 	float dusk = min(smoothstep(.3,.5,lmb),smoothstep(1.,.8,lmb))*(1.-rain);
 	float night = smoothstep(1.,.2,lmb);
-	hp float smap = 1.;
+	float smap = 1.;
 	#if !USE_ALPHA_TEST
-		smap = dside(smap,0.,nv.x);
+		smap = dside(smap,0.,n.x);
 	#else
-	if(color.a==0.)smap = dside(smap,.2,nv.x);
+	if(color.a==0.)smap = dside(smap,.2,n.x);
 	#endif
 		smap = mix(smap,0.,smoothstep(.87,.845,uv1.y));
 		smap = mix(smap,0.,rain);
-	if(!waterd)smap = mix(smap,0.,smoothstep(.6,.3,color.g));
+	if(wflag!=.5)smap = mix(smap,0.,smoothstep(.6,.3,color.g));
 		smap = mix(smap,1.,smoothstep(lmb*uv1.y,1.,uv1.x));
 	vec3 almap = vec3(.3,.4,.6)*mix(1.,0.,saturate(rain*.25+night));
 		almap *= uv1.y;
@@ -164,44 +164,37 @@ vec4 inColor = color;
 
 
 
-	vec3 nv = normalize(cross(dFdx(cpos.xyz),dFdy(cpos.xyz)));
-	vec3 n = nv;
-	float wflag = 0.;
-	bool waterd = (color.a<.95&&color.a>.05);
-#if !defined(SEASONS) && !defined(ALPHA_TEST)
-	if(waterd){ n = calcnw(nv); wflag = 0.5; }
-#endif
+	vec3 rnv = normalize(cross(dFdx(cpos.xyz),dFdy(cpos.xyz)));
+	vec3 n = (wflag>.4&&wflag<.6)?calcnw(rnv):rnv;
 	float lmb = texture2D(TEXTURE_1,vec2(0,1)).r;
 	float bls = mix(mix(0.,uv1.x,smoothstep(lmb*uv1.y,1.,uv1.x)),uv1.x,rain*uv1.y);
 	vec3 lsc = vec3(1.,.35,0.)*bls+pow(bls,5.)*.8;
 	diffuse.rgb = tl(diffuse.rgb);
-	diffuse.rgb = illum(diffuse.rgb,n,lsc,lmb,waterd);
+	diffuse.rgb = illum(diffuse.rgb,n,lsc,lmb);
 	vec3 vdir = normalize(-wpos);
 	vec3 lpos = normalize(vec3(cos(2.96706),sin(2.96706),0.));
 	float ndv = max(.001,dot(n,vdir));
 	float ndh = max(.001,dot(n,normalize(vdir+lpos)));
 	vec3 uppos = normalize(vec3(0.,abs(wpos.y),0.));
 	if(wflag>.4&&wflag<.6)diffuse = reflection(diffuse,n,uppos,lsc,ndv,ndh);
+	vec3 newfc = sr(normalize(wpos),uppos,2.5);
 #ifdef UNDERWATER
-	hp float caus = cwav(cpos.xz);
+	float caus = cwav(cpos.xz);
 	if(!waterd)diffuse.rgb = vec3(.3,.5,.8)*diffuse.rgb+saturate(caus)*diffuse.rgb*uv1.y;
-	diffuse.rgb += (1.-uv1.y)*pow(uv1.x,3.)*sqrt(diffuse.rgb);
+	diffuse.rgb += pow(uv1.x,3.)*sqrt(diffuse.rgb)*max0(1.-uv1.y);
 	diffuse.rgb = mix(diffuse.rgb,tl(FOG_COLOR.rgb),pow(fogr,5.));
 #else
 	float fresnel = fschlick(.05,ndv);
-	diffuse.rgb = mix(diffuse.rgb,csc(fresnel),(fresnel*rain*nv.y)*.2*smoothstep(.845,.87,uv1.y));
+	diffuse.rgb = mix(diffuse.rgb,newfc,(fresnel*rain*rnv.y)*.2*smoothstep(.845,.87,uv1.y));
 #endif
-	vec3 newfc = sr(normalize(wpos),uppos,2.5);
-	float fogf = max0(length(wpos)/RENDER_DISTANCE);
-		fogf = mix(pow(fogf,2.)*.3,fogf*1.2,rain);
+	float fogf = max0(length(wpos)/200.);
+		fogf *= saturate(.3+.6*rain);
 	diffuse.rgb = mix(diffuse.rgb,newfc,fogf);
-
 
 	diffuse.rgb = tonemap(diffuse.rgb);
 
 
-
-
 	gl_FragColor = diffuse;
+
 #endif
 }
