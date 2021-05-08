@@ -23,9 +23,9 @@
 varying vec4 color;
 varying vec3 cpos;
 varying	vec3 wpos;
-varying float wflag;
 #endif
 
+varying float wflag;
 #ifdef UNDERWATER
 varying float fogr;
 #endif
@@ -45,7 +45,7 @@ const float DIST_DESATURATION = 56.0 / 255.0; //WARNING this value is also hardc
 void main()
 {
 	POS4 worldPos;
-	wflag = 0.;
+	wflag = 0.0;
 #ifdef AS_ENTITY_RENDERER
 		POS4 pos = WORLDVIEWPROJ * POSITION;
 		worldPos = pos;
@@ -53,11 +53,11 @@ void main()
 	worldPos.xyz = (POSITION.xyz * CHUNK_ORIGIN_AND_SCALE.w) + CHUNK_ORIGIN_AND_SCALE.xyz;
 	worldPos.w = 1.0;
 
-	vec3 ajp = vec3(POSITION.x==16.?0.:POSITION.x,abs(POSITION.y-8.),POSITION.z==16.?0.:POSITION.z);
-	float gwave = sin(TOTAL_REAL_WORLD_TIME*4.+ajp.x+ajp.z+ajp.y);
+	hp vec3 ajp = vec3(POSITION.x==16.?0.:POSITION.x,abs(POSITION.y-8.),POSITION.z==16.?0.:POSITION.z);
+	hp float gwave = sin(TOTAL_REAL_WORLD_TIME*4.+ajp.x+ajp.z+ajp.y);
 
 	#if !defined(SEASONS) || !defined(ALPHA_TEST)
-		if(COLOR.a<.95&&COLOR.a>.05){ worldPos.y += gwave*.06*fract(POSITION.y); wflag = .5; }
+		if(COLOR.a<.95&&COLOR.a>.05){ wflag = .5; worldPos.y += gwave*.06*fract(POSITION.y); }
 	#endif
 
 	#ifdef ALPHA_TEST

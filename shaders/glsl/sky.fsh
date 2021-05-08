@@ -11,6 +11,5 @@ varying highp float skyh;
 void main(){
     vec3 skyc = csc(pow(skyh*2.,2.));
         skyc = tonemap(skyc);
-
     gl_FragColor = vec4(skyc, 1.);
 }

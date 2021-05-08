@@ -29,11 +29,10 @@ void main(){
 	vec4 diffuse = texture2D_AA(TEXTURE_0, uv );
 #endif
 
-	vec3 color = mix(mix(vec3(1.,.6,0.),vec3(.6,.8,1.),nfog),FOG_COLOR.rgb,rain);
-	float cenr = length(pos.xz);
-		color += max0(.01/pow(cenr*(18.-nfog*12.),8.));
- 		color *= exp(.9-cenr)/5.;
-	diffuse.rgb = color;
-
+    vec3 color = mix(mix(vec3(1.,.6,0.),vec3(.6,.8,1.),nfog),FOG_COLOR.rgb,rain);
+	hp float l = length(pos.xz);
+		color += max0(.01/pow(l*(18.-nfog*12.),8.));
+ 		color *= exp(.9-l)/5.;
+		diffuse.rgb = color;
 	gl_FragColor = diffuse * CURRENT_COLOR;
 }
