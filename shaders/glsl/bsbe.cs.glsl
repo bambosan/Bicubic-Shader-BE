@@ -1,3 +1,7 @@
+#define hp highp
+#define mp mediump
+#define lp lowp
+
 #define max0(x) max(0.,x)
 #define saturate(x) clamp(x,0.,1.)
 #define dside(x,y,z) mix(x,y,max0(abs(z)))
@@ -5,20 +9,14 @@
 #define nfog pow(saturate(1.-FOG_COLOR.r*1.5),1.2)
 #define dfog saturate((FOG_COLOR.r-.15)*1.25)*(1.-FOG_COLOR.b)
 
-#ifdef GL_FRAGMENT_PRECISION_HIGH
-#define hp highp
-#else
-#define mp mediump
-#endif
-
 float hash(hp float n){ return fract(sin(n)*43758.5453); }
 float hash(hp vec2 p){ return fract(cos(p.x+p.y*332.)*335.552); }
 float noise(hp vec2 x){
 	hp vec2 p = floor(x);
 	hp vec2 f = fract(x);
-		f = f*f*(3.0-2.0*f);
-	hp float n = p.x + p.y*57.0;
-	return mix(mix(hash(n),hash(n+1.0),f.x),mix(hash(n+57.0),hash(n+58.0),f.x),f.y);
+		f = f*f*(3.-2.*f);
+	hp float n = p.x+p.y*57.;
+	return mix(mix(hash(n),hash(n+1.),f.x),mix(hash(n+57.),hash(n+58.),f.x),f.y);
 }
 float vnt(hp vec2 p){
 	hp vec2 fp = fract(p);
@@ -42,11 +40,11 @@ float fbm(hp vec2 pos,float den){
 		pos *= 2.8;
 		pos += TOTAL_REAL_WORLD_TIME*.03;
 	}
-	return 1.-pow(.1,max(0.,1.-tot));
+	return 1.-pow(.1,max0(1.-tot));
 }
 vec3 tl(vec3 col){ return pow(col,vec3(2.2)); }
 vec3 ccc(){
-	vec3 cloudc = mix(mix(mix(vec3(1,1,1),vec3(.15,.2,.29),nfog),vec3(1.,.3,.5),dfog),FOG_COLOR.rgb*1.5,rain);
+	vec3 cloudc = mix(mix(mix(vec3(1),vec3(.15,.2,.29),nfog),vec3(1.,.3,.5),dfog),FOG_COLOR.rgb*1.5,rain);
 		cloudc = tl(cloudc);
 	return cloudc;
 }
@@ -59,7 +57,7 @@ vec3 csc(float skyh){
 	if(FOG_CONTROL.x==0.)skyc=tl(FOG_COLOR.rgb);
 	return skyc;
 }
-vec3 sr(vec3 npos, vec3 uppos, float atten){
+vec3 sr(hp vec3 npos, hp vec3 uppos, float atten){
 	float zenith = max0(dot(npos,uppos));
 	float mies = pow(1.-length(npos.zy),3.)*15.;
 	float hor = pow(1.-zenith,atten)+mies*dfog;
@@ -70,6 +68,6 @@ vec3 tonemap(vec3 col){
 	col *= 1.3;
  	col = col/(.9813*col+.1511);
 	float lum = dot(col,vec3(.2125,.7154,.0721));
-	col = mix(vec3(lum),col,1.);
+	col = mix(vec3(lum),col,1.1);
 	return col;
 }
