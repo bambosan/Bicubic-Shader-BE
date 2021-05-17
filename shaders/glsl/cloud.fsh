@@ -37,7 +37,7 @@ void main(){
     hp vec3 npos = normalize(ajp);
     hp float zenith = max0(dot(npos,uppos));
 
-    vec3 und = sr(npos,uppos,3.);
+    vec3 und = sr(npos,uppos);
     vec4 color = vec4(und,pow(1.-zenith,5.));
 
 #ifdef rendercloud

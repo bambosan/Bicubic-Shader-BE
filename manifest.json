@@ -8,7 +8,7 @@
         "license": "MIT License"
     },
     "header": {
-        "name": "Bicubic shaders be 3.1",
+        "name": "Bicubic shaders be 3.1 dev",
         "description": "a shader for minecraft be",
         "uuid": "a52ad973-b3c5-6edd-0f4c-13cc98df41cb",
         "version": [0, 3, 1],
