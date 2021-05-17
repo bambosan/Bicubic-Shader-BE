@@ -170,8 +170,8 @@ testColor.a *= alphaTestMultiplier;
 #endif
 	color.rgb = tl(color.rgb);
 	hp vec3 uppos = normalize(vec3(0.,abs(wpos.y),0.));
-	vec3 newfc = sr(normalize(wpos),uppos,2.5);
-	float fogf = max0(length(wpos)/200.)*saturate(.3+.6*rain);
+	vec3 newfc = sr(normalize(wpos),uppos);
+	float fogf = max0(length(wpos)/200.)*saturate(.2+.7*rain);
 	if(dep>.1)color.rgb = mix(color.rgb,newfc,fogf);
 
 	//apply fog

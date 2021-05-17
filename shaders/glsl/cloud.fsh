@@ -35,14 +35,15 @@ void main(){
     hp vec3 ajp = vec3(pos.x,-pos.y+.128,-pos.z);
     hp vec3 uppos = normalize(vec3(0.,abs(ajp.y),0.));
     hp vec3 npos = normalize(ajp);
-    hp vec3 dpos = npos/npos.y;
     hp float zenith = max0(dot(npos,uppos));
 
     vec3 und = sr(npos,uppos,3.);
     vec4 color = vec4(und,pow(1.-zenith,5.));
+
 #ifdef rendercloud
+    hp vec3 dpos = npos/npos.y;
     vec4 cloud = rclouds(dpos.xz*.8);
-        color = mix(vec4(und,pow(1.-zenith,5.)),cloud,cloud.a*.65*smoothstep(1.,.95,length(npos.xz))*float(zenith>0.));
+        color = mix(vec4(und,pow(1.-zenith,5.)),cloud,cloud.a*.6*smoothstep(1.,.95,length(npos.xz))*float(zenith>0.));
 #endif
         color.rgb = tonemap(color.rgb);
 

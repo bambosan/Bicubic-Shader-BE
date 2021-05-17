@@ -57,10 +57,10 @@ vec3 csc(float skyh){
 	if(FOG_CONTROL.x==0.)skyc=tl(FOG_COLOR.rgb);
 	return skyc;
 }
-vec3 sr(hp vec3 npos, hp vec3 uppos, float atten){
+vec3 sr(hp vec3 npos, hp vec3 uppos){
 	float zenith = max0(dot(npos,uppos));
 	float mies = pow(1.-length(npos.zy),3.)*15.;
-	float hor = pow(1.-zenith,atten)+mies*dfog;
+	float hor = pow(1.-zenith,2.5)+mies*dfog;
 	vec3 tsc = csc(hor);
 	return tsc;
 }
