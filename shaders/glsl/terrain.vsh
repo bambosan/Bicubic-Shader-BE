@@ -57,17 +57,20 @@ void main()
 	hp float gwave = sin(TOTAL_REAL_WORLD_TIME*4.+ajp.x+ajp.z+ajp.y);
 
 	#if !defined(SEASONS) || !defined(ALPHA_TEST)
-		if(COLOR.a<.95&&COLOR.a>.05){ wflag = .5; worldPos.y += gwave*.06*fract(POSITION.y); }
+		if(COLOR.a<.95&&COLOR.a>.05){
+			wflag = .5;
+			#ifdef vertexwave
+				worldPos.y += gwave*.06*fract(POSITION.y);
+			#endif
+		}
 	#endif
-
-	#ifdef ALPHA_TEST
+	#if defined(ALPHA_TEST) && defined(vertexwave)
 		vec3 frp = fract(POSITION.xyz);
 		if((COLOR.r!=COLOR.g&&COLOR.g!=COLOR.b&&frp.y!=.015625)||(frp.y==.9375&&(frp.x==0.||frp.z==0.))){
 			worldPos.xyz += gwave*.06*(1.-saturate(length(worldPos.xyz)/FAR_CHUNKS_DISTANCE))*TEXCOORD_1.y;
 		}
 	#endif
-
-	#ifdef UNDERWATER
+	#if defined(UNDERWATER) && defined(vertexwave)
 		worldPos.xyz += gwave*.05;
 	#endif
 

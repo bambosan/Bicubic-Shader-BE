@@ -3,6 +3,8 @@
     "version": "1.0.0",
     "terrain_base": {
       "+defines": [ "rendercloud" ],
+      "+defines": [ "waterbump" ],
+      "+defines": [ "vertexwave" ],
       "vertexShader": "shaders/terrain.vsh",
       "vrGeometryShader": "shaders/renderchunk.geometry",
       "fragmentShader": "shaders/terrain.fsh",
