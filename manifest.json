@@ -2,7 +2,7 @@
     "format_version": 2,
     "metadata": {
         "authors": [
-            "Mcbamboo"
+            "sad"
         ],
         "url": "https://github.com/Mcbamboo/bicubic-shaders-be",
         "license": "MIT License"
@@ -24,14 +24,24 @@
     ],
     "subpacks": [
         {
-            "folder_name": "nocloud",
-            "name": "no cloud",
+            "folder_name": "s3",
+            "name": "no clouds, waterbump and water plants wave",
             "memory_tier": 1
         },
         {
-            "folder_name": "regular",
-            "name": "regular",
+            "folder_name": "s2",
+            "name": "no clouds and waterbump",
             "memory_tier": 2
+        },
+        {
+            "folder_name": "s1",
+            "name": "no clouds",
+            "memory_tier": 3
+        },
+        {
+            "folder_name": "s0",
+            "name": "regular",
+            "memory_tier": 4
         }
     ]
 }
