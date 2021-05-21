@@ -41,7 +41,7 @@ void main(){
 #ifdef rendercloud
     hp vec3 dpos = npos/npos.y;
     vec4 cloud = rclouds(dpos.xz*.8);
-        color = mix(vec4(und,pow(1.-zenith,5.)),cloud,cloud.a*.6*smoothstep(1.,.95,length(npos.xz))*float(zenith>0.));
+        color = mix(vec4(skyl,pow(1.-zenith,5.)),cloud,cloud.a*.6*smoothstep(1.,.95,length(npos.xz))*float(zenith>0.));
 #endif
 
 
