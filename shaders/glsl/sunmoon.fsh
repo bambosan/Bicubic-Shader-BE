@@ -32,7 +32,7 @@ void main(){
 	vec3 c = mix(mix(vec3(1.,.6,0.),vec3(.6,.8,1.),nfog),FOG_COLOR.rgb,rain);
 	hp float ce = length(pos.xz);
 		c += max0(.01/pow(ce*(18.-nfog*12.),8.));
- 		c *= exp(.9-ce)/5.;
+ 		c *= exp(.9-ce)/(5.+dfog*5.);
 
 	diffuse.rgb = c;
 	gl_FragColor = diffuse * CURRENT_COLOR;

@@ -48,7 +48,7 @@ vec3 ccc(){
 }
 vec3 csc(float sh){
 	vec3 s = mix(mix(mix(vec3(0.,.35,.8),vec3(.06,.1,.2),nfog),vec3(.5,.4,.6),dfog),FOG_COLOR.rgb*2.,rain);
-	vec3 h = mix(mix(mix(vec3(.8,.9,1.),vec3(1.,.4,.5),dfog),skyc+.15,nfog),FOG_COLOR.rgb*2.,rain);
+	vec3 h = mix(mix(mix(vec3(.8,.9,1.),vec3(1.,.4,.5),dfog),s+.15,nfog),FOG_COLOR.rgb*2.,rain);
 		s = tl(s);
 		h = tl(h);
 		s = mix(s,h,sh);
@@ -57,8 +57,8 @@ vec3 csc(float sh){
 }
 vec3 sr(hp vec3 n, hp vec3 u){
 	float z = max0(dot(n,u));
-	float m = pow(1.-length(n.zy),3.)*15.;
-	float h = pow(1.-z,2.5)+m*dfog;
+	hp float m = pow(1.-length(n.zy),4.)*10.;
+	hp float h = pow(1.-z,2.5)+m*dfog;
 	vec3 c = csc(h);
 	return c;
 }

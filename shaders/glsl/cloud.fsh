@@ -42,7 +42,7 @@ void main(){
     vec4 cl = rc(d.xz*.8);
         c = mix(vec4(s,pow(1.-z,5.)),cl,cl.a*.6*smoothstep(1.,.95,length(n.xz))*float(z>0.));
 #endif
-        c.rgb = tonemap(c.rgb);
+        c.rgb = tm(c.rgb);
 
     gl_FragColor = c;
 }

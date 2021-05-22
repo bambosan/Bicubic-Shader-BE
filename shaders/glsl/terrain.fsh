@@ -45,13 +45,13 @@ float cw(hp vec2 p){
 }
 vec3 cnw(vec3 n){
 	hp float w1 = cw(cpos.xz);
-	hp float w2 = cw(vec2(cpos.x-.02,cpos.z));
-	hp float w3 = cw(vec2(cpos.x,cpos.z-.02));
+	hp float w2 = cw(vec2(cpos.x-.03,cpos.z));
+	hp float w3 = cw(vec2(cpos.x,cpos.z-.03));
 	vec3 wn = normalize(vec3(w1-w2,w1-w3,1.))*.5+.5;
 	mat3 tbn = mat3(abs(n.y)+n.z,0.,n.x,0.,0.,n.y,-n.x,n.y,n.z);
 		wn = wn*2.-1.;
 		wn = normalize(wn*tbn);
-	return wn;
+	return clamp(wn,-1.,1.);
 }
 #endif
 float fs(float f0,float ndv){
@@ -65,11 +65,11 @@ vec4 wr(vec4 d,vec3 n,hp vec3 u,vec3 lc,float ndv,float ndh){
 	d = mix(d,vec4(s,1.),f);
 #ifdef rendercloud
 		rv = rv/rv.y;
-	float m = fbm(rv.xz*.4,1.43)*max0(dot(rv,u));
+	float m = fbm(rv.xz*.4,1.43);
 	vec3 c = ccc();
-	d = mix(d,vec4(c,1.),m*f);
+	d = mix(d,vec4(c,.8),m*f*max0(dot(rv,u)));
 #endif
-	d = mix(d,vec4(lc,1.),ndv*lc.r);
+	d += vec4(lc,ndv*length(lc));
 	d += ndh*vec4(s,1.)*dfog;
 	d.rgb *= max(uv1.x,uv1.y);
 	return d;
@@ -86,7 +86,7 @@ vec3 ill(vec3 d,vec3 n,vec3 lc,float l,bool water){
 		s = mix(s,0.,smoothstep(.87,.845,uv1.y));
 		s = mix(s,0.,rain);
 	if(!water)s = mix(s,0.,smoothstep(.6,.3,color.g));
-		s = mix(s,1.,smoothstep(l*uv1.y,1.,uv1.x));
+		s = mix(s,1.,smoothstep(l*pow(uv1.y,2.),1.,uv1.x));
 	vec3 lm = vec3(.2,.3,.5)*(1.-saturate(rain*.25+ni*2.))*uv1.y;
 	vec3 ac = mix(mix(vec3(1.,.9,.8),vec3(.6,.2,.3),du),vec3(0.,0.,.15),ni);
 		lm += lc;
@@ -158,7 +158,7 @@ vec4 inColor = color;
 	hp vec3 v = normalize(-wpos);
 	hp vec3 lp = normalize(vec3(-0.9848078,.16477773,0.));
 	hp float ndh = pow(max0(dot(n,normalize(v+lp))),256.);
-	float ndv = max0(dot(n,v));
+	hp float ndv = max0(dot(n,v));
 	if(water)diffuse = wr(diffuse,n,u,lc,ndv,ndh);
 	vec3 nfc = sr(normalize(wpos),u);
 #ifdef UNDERWATER
@@ -173,7 +173,7 @@ vec4 inColor = color;
 	diffuse.rgb = mix(diffuse.rgb,nfc,(f*rain*n.y)*smoothstep(.845,.87,uv1.y)*.5);
 #endif
 	diffuse.rgb = mix(diffuse.rgb,nfc,saturate(length(wpos)*(.001+.003*rain)));
-	diffuse.rgb = tonemap(diffuse.rgb);
+	diffuse.rgb = tm(diffuse.rgb);
 
 	gl_FragColor = diffuse;
 
