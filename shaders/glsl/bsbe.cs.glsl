@@ -32,42 +32,42 @@ float vnt(hp vec2 p){
 	return s;
 }
 uniform hp float TOTAL_REAL_WORLD_TIME;
-float fbm(hp vec2 pos,float den){
-	float tot = 0.,s = 1.;
-	pos += TOTAL_REAL_WORLD_TIME*.001;
+float fbm(hp vec2 p,float d){
+	float t = 0.,s = 1.;
+	p += TOTAL_REAL_WORLD_TIME*.001;
 	for(int i=0; i<3; i++){
-		tot += vnt(pos)*den/s; s *= 2.2;
-		pos *= 2.8;
-		pos += TOTAL_REAL_WORLD_TIME*.03;
+		t += vnt(p)*d/s; s *= 2.2;
+		p *= 2.8;
+		p += TOTAL_REAL_WORLD_TIME*.03;
 	}
-	return 1.-pow(.1,max0(1.-tot));
+	return 1.-pow(.1,max0(1.-t));
 }
-vec3 tl(vec3 col){ return pow(col,vec3(2.2)); }
+vec3 tl(vec3 c){ return pow(c,vec3(2.2)); }
 vec3 ccc(){
-	vec3 cloudc = mix(mix(mix(vec3(1),vec3(.15,.2,.29),nfog),vec3(1.,.3,.5),dfog),FOG_COLOR.rgb*1.5,rain);
-		cloudc = tl(cloudc);
-	return cloudc;
+	vec3 c = mix(mix(mix(vec3(1),vec3(.15,.2,.29),nfog),vec3(1.,.3,.5),dfog),FOG_COLOR.rgb*1.5,rain);
+		c = tl(c);
+	return c;
 }
-vec3 csc(float skyh){
-	vec3 skyc = mix(mix(mix(vec3(0.,.35,.8),vec3(.06,.1,.2),nfog),vec3(.5,.4,.6),dfog),FOG_COLOR.rgb*2.,rain);
-	vec3 scc = mix(mix(mix(vec3(.8,.9,1.),vec3(1.,.4,.5),dfog),skyc+.15,nfog),FOG_COLOR.rgb*2.,rain);
-		skyc = tl(skyc);
-		scc = tl(scc);
-		skyc = mix(skyc,scc,skyh);
-	if(FOG_CONTROL.x==0.)skyc=tl(FOG_COLOR.rgb);
-	return skyc;
+vec3 csc(float sh){
+	vec3 s = mix(mix(mix(vec3(0.,.35,.8),vec3(.06,.1,.2),nfog),vec3(.5,.4,.6),dfog),FOG_COLOR.rgb*2.,rain);
+	vec3 h = mix(mix(mix(vec3(.8,.9,1.),vec3(1.,.4,.5),dfog),skyc+.15,nfog),FOG_COLOR.rgb*2.,rain);
+		s = tl(s);
+		h = tl(h);
+		s = mix(s,h,sh);
+	if(FOG_CONTROL.x==0.)s=tl(FOG_COLOR.rgb);
+	return s;
 }
-vec3 sr(hp vec3 npos, hp vec3 uppos){
-	float zenith = max0(dot(npos,uppos));
-	float mies = pow(1.-length(npos.zy),3.)*15.;
-	float hor = pow(1.-zenith,2.5)+mies*dfog;
-	vec3 tsc = csc(hor);
-	return tsc;
+vec3 sr(hp vec3 n, hp vec3 u){
+	float z = max0(dot(n,u));
+	float m = pow(1.-length(n.zy),3.)*15.;
+	float h = pow(1.-z,2.5)+m*dfog;
+	vec3 c = csc(h);
+	return c;
 }
-vec3 tonemap(vec3 col){
-	col *= 1.3;
- 	col = col/(.9813*col+.1511);
-	float lum = dot(col,vec3(.2125,.7154,.0721));
-	col = mix(vec3(lum),col,1.1);
-	return col;
+vec3 tonemap(vec3 c){
+	c *= 1.3;
+ 	c = c/(.9813*c+.1511);
+	float l = dot(c,vec3(.2125,.7154,.0721));
+	c = mix(vec3(l),c,1.1);
+	return c;
 }

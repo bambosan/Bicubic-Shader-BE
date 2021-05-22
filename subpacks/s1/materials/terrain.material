@@ -2,8 +2,7 @@
   "materials": {
     "version": "1.0.0",
     "terrain_base": {
-      "+defines": [ "waterbump" ],
-      "+defines": [ "vertexwave" ],
+      "+defines": [ "waterbump", "vertexwave" ],
       "vertexShader": "shaders/terrain.vsh",
       "vrGeometryShader": "shaders/renderchunk.geometry",
       "fragmentShader": "shaders/terrain.fsh",

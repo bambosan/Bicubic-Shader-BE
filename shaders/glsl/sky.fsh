@@ -9,7 +9,7 @@ varying highp float skyh;
 #include "bsbe.cs.glsl"
 
 void main(){
-    vec3 skyc = csc(pow(skyh*2.,2.));
-        skyc = tonemap(skyc);
-    gl_FragColor = vec4(skyc, 1.);
+    vec3 s = csc(pow(skyh*2.,2.));
+        s = tonemap(s);
+    gl_FragColor = vec4(s,1.);
 }
