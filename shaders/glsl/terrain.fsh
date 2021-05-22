@@ -62,13 +62,14 @@ vec4 wr(vec4 d,vec3 n,hp vec3 u,vec3 lc,float ndv,float ndh){
 	vec3 s = sr(rv,u);
 	float f = fs(.2,ndv);
 	d = vec4(0.,0.,0.,f);
-	d = mix(d,vec4(s+lc*.3,1.),f);
+	d = mix(d,vec4(s,1.),f);
 #ifdef rendercloud
 		rv = rv/rv.y;
 	float m = fbm(rv.xz*.4,1.43)*max0(dot(rv,u));
 	vec3 c = ccc();
 	d = mix(d,vec4(c,1.),m*f);
 #endif
+	d = mix(d,vec4(lc,1.),ndv*lc.r);
 	d += ndh*vec4(s,1.)*dfog;
 	d.rgb *= max(uv1.x,uv1.y);
 	return d;
@@ -144,7 +145,7 @@ vec4 inColor = color;
 #endif
 
 	float l = texture2D(TEXTURE_1,vec2(0,1)).r;
-	float ls = mix(mix(0.,uv1.x,smoothstep(l*uv1.y,1.,uv1.x)),uv1.x,rain*uv1.y);
+	float ls = mix(mix(0.,uv1.x,smoothstep(l*pow(uv1.y,2.),1.,uv1.x)),uv1.x,rain*uv1.y);
 	vec3 lc = vec3(1.,.35,0.)*ls+pow(ls,5.)*.6;
 	vec3 n = normalize(cross(dFdx(cpos.xyz),dFdy(cpos.xyz)));
 	bool water = wflag>.4&&wflag<.6;
@@ -162,14 +163,14 @@ vec4 inColor = color;
 	vec3 nfc = sr(normalize(wpos),u);
 #ifdef UNDERWATER
 	#ifdef waterbump
-		hp float c = cwav(cpos.xz);
+		hp float c = cw(cpos.xz);
 		if(!water)diffuse.rgb = vec3(.3,.5,.8)*diffuse.rgb+saturate(c)*diffuse.rgb*uv1.y;
 	#endif
 	diffuse.rgb += pow(uv1.x,3.)*sqrt(diffuse.rgb)*(1.-uv1.y);
 	diffuse.rgb = mix(diffuse.rgb,tl(FOG_COLOR.rgb),pow(fogr,5.));
 #else
-	float f = fs(.03,ndv);
-	diffuse.rgb = mix(diffuse.rgb,nfc,(f*rain*n.y)*smoothstep(.845,.87,uv1.y));
+	float f = fs(.04,ndv);
+	diffuse.rgb = mix(diffuse.rgb,nfc,(f*rain*n.y)*smoothstep(.845,.87,uv1.y)*.5);
 #endif
 	diffuse.rgb = mix(diffuse.rgb,nfc,saturate(length(wpos)*(.001+.003*rain)));
 	diffuse.rgb = tonemap(diffuse.rgb);

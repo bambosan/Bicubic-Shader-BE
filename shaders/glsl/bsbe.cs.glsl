@@ -1,7 +1,5 @@
 #define hp highp
 #define mp mediump
-#define lp lowp
-
 #define max0(x) max(0.,x)
 #define saturate(x) clamp(x,0.,1.)
 #define dside(x,y,z) mix(x,y,max0(abs(z)))
@@ -64,7 +62,7 @@ vec3 sr(hp vec3 n, hp vec3 u){
 	vec3 c = csc(h);
 	return c;
 }
-vec3 tonemap(vec3 c){
+vec3 tm(vec3 c){
 	c *= 1.3;
  	c = c/(.9813*c+.1511);
 	float l = dot(c,vec3(.2125,.7154,.0721));

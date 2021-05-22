@@ -175,7 +175,7 @@ testColor.a *= alphaTestMultiplier;
 
 	//apply fog
 	if(FOG_CONTROL.x == 0.0) color.rgb = mix( color.rgb, tl(fogColor.rgb), pow(fogColor.a, 5.0));
-	color.rgb = tonemap(color.rgb);
+	color.rgb = tm(color.rgb);
 
 #ifdef GLINT
 	// Applies color mask to glint texture instead and blends with original color
