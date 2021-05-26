@@ -18,7 +18,7 @@ varying vec2 uv;
 
 LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
 
-varying highp vec3 pos;
+varying highp vec3 spos;
 #include "bsbe.cs.glsl"
 
 void main(){
@@ -29,11 +29,11 @@ void main(){
 	vec4 diffuse = texture2D_AA(TEXTURE_0, uv );
 #endif
 
-	vec3 c = mix(mix(vec3(1.,.6,0.),vec3(.6,.8,1.),nfog),FOG_COLOR.rgb,rain);
-	hp float ce = length(pos.xz);
-		c += max0(.01/pow(ce*(18.-nfog*12.),8.));
- 		c *= exp(.9-ce)/(5.+dfog*5.);
+	vec3 color = mix(mix(vec3(1.0,0.6,0.0),vec3(0.6,0.8,1.0),nfog),FOG_COLOR.rgb,rain);
+	float centerr = length(spos.xz);
+		color += max0(0.01/pow(centerr*(18.0-nfog*12.0),8.0));
+ 		color *= exp(0.9-centerr)/(5.0+dfog*5.0);
 
-	diffuse.rgb = c;
+	diffuse.rgb = color;
 	gl_FragColor = diffuse * CURRENT_COLOR;
 }

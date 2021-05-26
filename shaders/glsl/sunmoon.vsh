@@ -6,11 +6,11 @@
 attribute POS4 POSITION;
 attribute vec2 TEXCOORD_0;
 
-varying highp vec3 pos;
+varying highp vec3 spos;
 
 void main()
 {
-    pos = POSITION.xyz * vec3(15.0, 1.0, 15.0);
+    spos = POSITION.xyz * vec3(15.0, 1.0, 15.0);
     gl_Position = WORLDVIEWPROJ * (POSITION * vec4(13.0, 1.0, 13.0, 1.0));
     uv = TEXCOORD_0;
 }

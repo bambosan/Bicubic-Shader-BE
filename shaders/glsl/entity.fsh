@@ -168,14 +168,15 @@ testColor.a *= alphaTestMultiplier;
 #else
 	color *= light;
 #endif
-	color.rgb = tl(color.rgb);
-	hp vec3 u = normalize(vec3(0.,abs(wpos.y),0.));
-	vec3 nfc = sr(normalize(wpos),u);
-	if(dep>.1)color.rgb = mix(color.rgb,nfc,saturate(length(wpos)*(.001+.003*rain)));
+	color.rgb = toLinear(color.rgb);
+	highp vec3 uppos = normalize(vec3(0.0,abs(wpos.y),0.0));
+	vec3 newfc = rendersky(normalize(wpos),uppos);
+	if(dep > 0.1) color.rgb = mix(color.rgb,newfc,saturate(length(wpos)*(0.001+0.003*rain)));
 
 	//apply fog
-	if(FOG_CONTROL.x == 0.0) color.rgb = mix( color.rgb, tl(fogColor.rgb), pow(fogColor.a, 5.0));
-	color.rgb = tm(color.rgb);
+	if(FOG_CONTROL.x == 0.0) color.rgb = mix( color.rgb, toLinear(fogColor.rgb), pow(fogColor.a, 5.0));
+
+	color.rgb = colorcorrection(color.rgb);
 
 #ifdef GLINT
 	// Applies color mask to glint texture instead and blends with original color

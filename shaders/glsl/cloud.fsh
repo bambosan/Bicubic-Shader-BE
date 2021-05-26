@@ -4,45 +4,54 @@
 #include "fragmentVersionSimple.h"
 #include "uniformPerFrameConstants.h"
 
-varying highp vec3 pos;
+varying highp vec3 cpos;
 
 #include "bsbe.cs.glsl"
 
 #ifdef rendercloud
-vec4 rc(hp vec2 p){
-    vec3 t = vec3(1)-nfog*.5;
-    vec3 s = mix(FOG_COLOR.rgb,FOG_COLOR.rgb*2.5,rain);
-        s = tl(s);
-    float d = 2.2-rain,o = 0.;
-    for(int i=0; i<10; i++){
-        float m = fbm(p,d);
-        d *= .9345;
-        p *= .966;
-        if(m>0.){
-            vec3 c = ccc();
-                c = mix(c*3.,s*m,m);
-            t = mix(t,c,m);
-            o += mix(0.,(1.-m*.5)*(1.-o),m);
+vec4 rendercloud(highp vec2 pos){
+    vec3 col = vec3(1)-nfog*0.5;
+    vec3 shadow = mix(FOG_COLOR.rgb,FOG_COLOR.rgb*2.5,rain);
+        shadow = toLinear(shadow);
+    float amp = 2.2-rain;
+    float opacity = 0.0;
+
+    for(int i = 0; i < 10; i++){
+        float cmap = fractalb(pos, amp);
+        amp *= 0.9345;
+        pos *= 0.966;
+        if(cmap > 0.0){
+            vec3 ccloud = cloudcolor();
+                ccloud = mix(ccloud*3.0,shadow*cmap,cmap);
+            col = mix(col,ccloud,cmap);
+            opacity += mix(0.0,(1.0-cmap*0.5)*(1.0-opacity),cmap);
         }
-        s *= .97;
+        shadow *= 0.97;
     }
-    return vec4(t,o);
+
+    return vec4(col,opacity);
 }
 #endif
 
 void main(){
 
-    hp vec3 a = vec3(pos.x,-pos.y+.128,-pos.z);
-    hp vec3 u = normalize(vec3(0.,abs(a.y),0.)), n = normalize(a);
-    hp float z = max0(dot(n,u));
-    vec3 s = sr(n,u);
-    vec4 c = vec4(s,pow(1.-z,5.));
-#ifdef rendercloud
-    hp vec3 d = n/n.y;
-    vec4 cl = rc(d.xz*.8);
-        c = mix(vec4(s,pow(1.-z,5.)),cl,cl.a*.6*smoothstep(1.,.95,length(n.xz))*float(z>0.));
-#endif
-        c.rgb = tm(c.rgb);
+    highp vec3 ajpos = vec3(cpos.x, -cpos.y+.128, -cpos.z);
+    highp vec3 uppos = normalize(vec3(0.0,abs(ajpos.y),0.0));
+    highp vec3 npos = normalize(ajpos);
 
-    gl_FragColor = c;
+    float zenith = max0(dot(npos,uppos));
+    vec3 sky = rendersky(npos,uppos);
+    vec4 color = vec4(sky,pow(1.0-zenith,5.0));
+#ifdef rendercloud
+
+    highp vec3 dpos = npos/npos.y;
+    vec4 cloud = rendercloud(dpos.xz*0.8);
+
+        color = mix(vec4(sky,pow(1.0-zenith,5.0)),
+        cloud,
+        cloud.a*smoothstep(1.0,0.95,length(npos.xz))*0.6*float(zenith > 0.0));
+#endif
+        color.rgb = colorcorrection(color.rgb);
+
+    gl_FragColor = color;
 }

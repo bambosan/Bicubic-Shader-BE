@@ -8,9 +8,9 @@
 
 attribute POS4 POSITION;
 
-varying highp vec3 pos;
+varying highp vec3 cpos;
 
 void main(){
     gl_Position = WORLDVIEWPROJ * POSITION;
-    pos = POSITION.xyz;
+    cpos = POSITION.xyz;
 }
