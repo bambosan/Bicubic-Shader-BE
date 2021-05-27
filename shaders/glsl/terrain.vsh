@@ -53,8 +53,8 @@ void main()
 	worldPos.xyz = (POSITION.xyz * CHUNK_ORIGIN_AND_SCALE.w) + CHUNK_ORIGIN_AND_SCALE.xyz;
 	worldPos.w = 1.0;
 
-	hp vec3 ajp = vec3(POSITION.x==16.?0.:POSITION.x,abs(POSITION.y-8.),POSITION.z==16.?0.:POSITION.z);
-	hp float gwave = sin(TOTAL_REAL_WORLD_TIME*4.+ajp.x+ajp.z+ajp.y);
+	highp vec3 ajp = vec3(POSITION.x==16.?0.:POSITION.x,abs(POSITION.y-8.),POSITION.z==16.?0.:POSITION.z);
+	highp float gwave = sin(TOTAL_REAL_WORLD_TIME*4.+ajp.x+ajp.z+ajp.y);
 
 	#if !defined(SEASONS) || !defined(ALPHA_TEST)
 		if(COLOR.a<.95&&COLOR.a>.05){

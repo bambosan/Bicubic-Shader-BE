@@ -14,16 +14,16 @@ vec2 random2(highp vec2 p){
 }
 
 float noise2d(highp vec2 p){
-	vec2 ip = floor(p);
-	vec2 fp = fract(p);
+	highp vec2 ip = floor(p);
+	highp vec2 fp = fract(p);
 		fp = smoothstep(0.0, 1.0, fp);
-	float u = ip.x + ip.y * 57.0;
+	highp float u = ip.x + ip.y * 57.0;
 	return mix(mix(random(u), random(u + 1.0), fp.x), mix(random(u + 57.0), random(u + 58.0), fp.x), fp.y);
 }
 
 float voronoi(highp vec2 p){
-	vec2 fp = fract(p);
-	vec2 ip = floor(p);
+	highp vec2 fp = fract(p);
+	highp vec2 ip = floor(p);
 	float dist = 1.0;
 	for(int y = -1; y <= 1; y++){
 		for(int x = -1; x <= 1; x++){

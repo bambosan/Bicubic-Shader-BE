@@ -101,7 +101,7 @@ vec3 illumination(vec3 diff,vec3 normal,vec3 lcolor,float blmap,bool water){
 
 	vec3 amblmap = vec3(0.2,0.3,0.5)*(1.0-saturate(rain*0.25+night*2.))*uv1.y;
 	vec3 ambcolor = mix(mix(vec3(1.0,0.9,0.8),vec3(0.6,0.2,0.3),dusk),vec3(0.0,0.0,0.15),night);
-		amblmap += ambcolor;
+		amblmap += lcolor;
 		amblmap += ambcolor*shadow*uv1.y;
 	diff *= amblmap;
 	return diff;

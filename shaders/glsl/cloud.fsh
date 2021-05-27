@@ -14,7 +14,7 @@ vec4 rendercloud(highp vec2 pos){
     vec3 shadow = mix(FOG_COLOR.rgb,FOG_COLOR.rgb*2.5,rain);
         shadow = toLinear(shadow);
     float amp = 2.2-rain;
-    float opacity = 0.0;
+    float op = 0.0;
 
     for(int i = 0; i < 10; i++){
         float cmap = fractalb(pos, amp);
@@ -24,12 +24,12 @@ vec4 rendercloud(highp vec2 pos){
             vec3 ccloud = cloudcolor();
                 ccloud = mix(ccloud*3.0,shadow*cmap,cmap);
             col = mix(col,ccloud,cmap);
-            opacity += mix(0.0,(1.0-cmap*0.5)*(1.0-opacity),cmap);
+            op += mix(0.0,(1.0-cmap*0.5)*(1.0-op),cmap);
         }
         shadow *= 0.97;
     }
 
-    return vec4(col,opacity);
+    return vec4(col,op);
 }
 #endif
 
@@ -47,9 +47,7 @@ void main(){
     highp vec3 dpos = npos/npos.y;
     vec4 cloud = rendercloud(dpos.xz*0.8);
 
-        color = mix(vec4(sky,pow(1.0-zenith,5.0)),
-        cloud,
-        cloud.a*smoothstep(1.0,0.95,length(npos.xz))*0.6*float(zenith > 0.0));
+        color = mix(vec4(sky,pow(1.0-zenith,5.0)),cloud,cloud.a*smoothstep(1.0,0.95,length(npos.xz))*0.6*float(zenith > 0.0));
 #endif
         color.rgb = colorcorrection(color.rgb);
 
