@@ -27,22 +27,22 @@ vec4 rcloud(highp vec2 pos){
 	vec3 col = vec3(1)-nfog*0.5;
 	vec3 shadow = mix(FOG_COLOR.rgb,FOG_COLOR.rgb*2.5,rain);
 		shadow = toLinear(shadow);
-    float amp = 2.3-rain*2.0;
-    float opac = 0.0;
+	float amp = 2.3-rain*2.0;
+	float opac = 0.0;
 
-    for(int i = 0; i < 10; i++){
+	for(int i = 0; i < 10; i++){
 		float cmap = fbm(pos, amp);
 		amp *= 0.933;
 		pos *= 0.965;
 		if(cmap > 0.0){
 			vec3 ccloud = cloudcolor();
-    			ccloud = mix(ccloud*3.0,shadow*cmap,cmap);
+				ccloud = mix(ccloud*3.0,shadow*cmap,cmap);
 			col = mix(col,ccloud,cmap);
-            opac += mix(0.0,(1.0-cmap*0.5)*(1.0-opac),cmap);
-        }
-        shadow *= 0.96;
-    }
-    return vec4(col,opac);
+    		opac += mix(0.0,(1.0-cmap*0.5)*(1.0-opac),cmap);
+		}
+		shadow *= 0.96;
+	}
+	return vec4(col,opac);
 }
 
 vec4 rcirrus(highp vec2 pos){
@@ -62,9 +62,9 @@ vec4 rcirrus(highp vec2 pos){
 
 void main(){
 
-    highp vec3 ajpos = vec3(cpos.x, -cpos.y+.128, -cpos.z);
-    highp vec3 uppos = normalize(vec3(0.0,abs(ajpos.y),0.0));
-    highp vec3 npos = normalize(ajpos);
+	highp vec3 ajpos = vec3(cpos.x, -cpos.y+.128, -cpos.z);
+	highp vec3 uppos = normalize(vec3(0.0,abs(ajpos.y),0.0));
+	highp vec3 npos = normalize(ajpos);
 
 	float zenith = max0(dot(npos,uppos));
 	vec3 sky = rendersky(npos,uppos);

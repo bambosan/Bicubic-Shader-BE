@@ -67,7 +67,7 @@ vec3 calcwnormal(vec3 normal){
 }
 #endif
 
-vec4 reflection(vec4 diff,vec3 normal,highp vec3 uppos,vec3 lcolor,float reftance,float reftivity){
+vec4 reflection(vec4 diff,vec3 normal,highp vec3 uppos,vec3 lcolor,float reftance,float reftivity,bool water){
 	highp vec3 vvector = normalize(-wpos);
 	highp vec3 rvector = reflect(normalize(wpos),normal);
 	vec3 skycolor = rendersky(rvector,uppos);
@@ -75,7 +75,7 @@ vec4 reflection(vec4 diff,vec3 normal,highp vec3 uppos,vec3 lcolor,float reftanc
 	highp float fresnel = reftance+(1.0-reftance)*pow(1.0-max0(dot(normal,vvector)),5.0);
 		fresnel = saturate(fresnel);
 
-	diff = vec4(0.0,0.0,0.0,fresnel);
+	if(water)diff = vec4(0.0,0.0,0.0,fresnel);
 	diff = mix(diff,vec4(skycolor,1.0),fresnel);
 
 	if(reftivity>0.9){
@@ -101,7 +101,7 @@ vec3 illumination(vec3 diff,vec3 normal,vec3 lcolor,float blmap,bool water){
 	#endif
  		shadow = mix(shadow,0.0,smoothstep(0.87,0.845,uv1.y));
 		shadow = mix(shadow,0.0,rain);
-	if(!water) shadow = mix(shadow,0.0,smoothstep(0.6,0.3,color.g));
+	if(!water)shadow = mix(shadow,0.0,smoothstep(0.6,0.3,color.g));
 		shadow = mix(shadow,1.0,smoothstep(blmap*pow(uv1.y,2.0),1.0,uv1.x));
 
 	vec3 amblmap = vec3(0.2,0.3,0.5)*(1.0-saturate(rain*0.25+night*2.))*uv1.y;
@@ -195,7 +195,7 @@ vec4 inColor = color;
 	diffuse.rgb += pow(uv1.x,3.0)*sqrt(diffuse.rgb)*(1.0-uv1.y);
 	diffuse.rgb = mix(diffuse.rgb,toLinear(FOG_COLOR.rgb),pow(fogr,5.0));
 #else
-	diffuse = reflection(diffuse, normal, uppos, lcolor, reftance, reftivity);
+	diffuse = reflection(diffuse,normal,uppos,lcolor,reftance,reftivity,water);
 #endif
 
 	diffuse.rgb = mix(diffuse.rgb,newfc,saturate(length(wpos)*(0.001+0.003*rain)));
