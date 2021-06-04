@@ -67,18 +67,18 @@ vec3 calcwnormal(vec3 normal){
 }
 #endif
 
-vec4 reflection(vec4 diff,vec3 normal,highp vec3 uppos,vec3 lcolor,float reftance,float reftivity,bool water){
+vec4 reflection(vec4 diff,vec3 normal,highp vec3 uppos,vec3 lcolor,vec2 refval,bool water){
 	highp vec3 vvector = normalize(-wpos);
 	highp vec3 rvector = reflect(normalize(wpos),normal);
 	vec3 skycolor = rendersky(rvector,uppos);
 
-	highp float fresnel = reftance+(1.0-reftance)*pow(1.0-max0(dot(normal,vvector)),5.0);
-		fresnel = saturate(fresnel);
+	highp float fresnel = refval.x+(1.0-refval.x)*pow(1.0-max0(dot(normal,vvector)),5.0);
+		fresnel = saturate(fresnel)*refval.y;
 
 	if(water)diff = vec4(0.0,0.0,0.0,fresnel);
 	diff = mix(diff,vec4(skycolor,1.0),fresnel);
 
-	if(reftivity>0.9){
+	if(refval.y>0.9){
 		highp vec3 lpos = vec3(-0.9848078,0.16477773,0.0);
 		highp float ndh = pow(max0(dot(normal,normalize(vvector+lpos))),256.0);
 
@@ -164,15 +164,12 @@ vec4 inColor = color;
 
 	vec3 normal = normalize(cross(dFdx(cpos.xyz),dFdy(cpos.xyz)));
 	bool water = wflag > 0.4 && wflag < 0.6;
-	float reftance = 0.0, reftivity = 0.0;
-
-	reftance = mix(reftance, 0.04, rain);
-	reftivity = mix(reftivity, 0.5, rain);
+	vec2 refval = vec2(0.0,0.0);
+		refval = mix(refval,vec2(0.04,0.5),rain);
 
 #ifdef waterbump
 	if(water){
-		reftance = 0.2;
-		reftivity = 1.0;
+		refval = vec2(0.2,1.0);
 		normal = calcwnormal(normal);
 	}
 #endif
@@ -195,7 +192,7 @@ vec4 inColor = color;
 	diffuse.rgb += pow(uv1.x,3.0)*sqrt(diffuse.rgb)*(1.0-uv1.y);
 	diffuse.rgb = mix(diffuse.rgb,toLinear(FOG_COLOR.rgb),pow(fogr,5.0));
 #else
-	diffuse = reflection(diffuse,normal,uppos,lcolor,reftance,reftivity,water);
+	diffuse = reflection(diffuse,normal,uppos,lcolor,refval,water);
 #endif
 
 	diffuse.rgb = mix(diffuse.rgb,newfc,saturate(length(wpos)*(0.001+0.003*rain)));
