@@ -40,15 +40,14 @@ LAYOUT_BINDING(2) uniform sampler2D TEXTURE_2;
 #include "bsbe.cs.glsl"
 
 #ifdef waterbump
-
 vec3 getTangent(vec3 normal){
 	vec3 tangent = vec3(0, 0, 0);
-	if(normal.x > 0.0){ tangent = vec3(0, 0, -1);
-	} else if(normal.x < -0.5){ tangent = vec3(0, 0, 1);
-	} else if(normal.y > 0.0){ tangent = vec3(1, 0, 0);
-	} else if(normal.y < -0.5){ tangent = vec3(1, 0, 0);
-	} else if(normal.z > 0.0){ tangent = vec3(1, 0, 0);
-	} else if(normal.z < -0.5){ tangent = vec3(-1, 0, 0);
+	if(normal.x>0.0){ tangent = vec3(0, 0, -1);
+	} else if(normal.x<-0.5){ tangent = vec3(0, 0, 1);
+	} else if(normal.y>0.0){ tangent = vec3(1, 0, 0);
+	} else if(normal.y<-0.5){ tangent = vec3(1, 0, 0);
+	} else if(normal.z>0.0){ tangent = vec3(1, 0, 0);
+	} else if(normal.z<-0.5){ tangent = vec3(-1, 0, 0);
 	}
 	return tangent;
 }
@@ -64,6 +63,12 @@ vec3 calcwnormal(vec3 normal){
 	mat3 tbnmatrix = mat3(tangent.x, binormal.x, normal.x, tangent.y, binormal.y, normal.y, tangent.z, binormal.z, normal.z);
 		rawnormal = normalize(rawnormal*tbnmatrix);
 	return rawnormal;
+}
+
+float ccausticm(){
+	float cell = texture2D(TEXTURE_0, uv0-fract(cpos.xz)/4.0+fract(cpos.xz*0.5+TOTAL_REAL_WORLD_TIME*0.1)/4.0).a*0.5;
+		cell += texture2D(TEXTURE_0, uv0-fract(cpos.xz)/4.0+fract(cpos.xz*0.5-TOTAL_REAL_WORLD_TIME*0.2)/4.0).a*0.5;
+	return saturate(cell);
 }
 #endif
 
@@ -186,8 +191,7 @@ vec4 inColor = color;
 
 #ifdef UNDERWATER
 	#ifdef waterbump
-		highp float caus = inoise(cpos.xz);
-		if(!water) diffuse.rgb = vec3(0.3,0.5,0.8)*diffuse.rgb+saturate(caus)*diffuse.rgb*uv1.y;
+		if(!water)diffuse.rgb = vec3(0.3,0.5,0.8)*diffuse.rgb+ccausticm()*diffuse.rgb*uv1.y;
 	#endif
 	diffuse.rgb += pow(uv1.x,3.0)*sqrt(diffuse.rgb)*(1.0-uv1.y);
 	diffuse.rgb = mix(diffuse.rgb,toLinear(FOG_COLOR.rgb),pow(fogr,5.0));
