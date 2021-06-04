@@ -6,50 +6,7 @@
 #define nfog pow(saturate(1.0-FOG_COLOR.r*1.5),1.2)
 #define dfog saturate((FOG_COLOR.r-0.15)*1.25)*(1.0-FOG_COLOR.b)
 
-float random(highp float p){
-	return fract(sin(p)*43758.5453);
-}
-vec2 random2(highp vec2 p){
-    return fract(sin(vec2(dot(p,vec2(127.1,311.7)),dot(p,vec2(269.5,183.3))))*43758.5453);
-}
-
-float noise2d(highp vec2 p){
-	highp vec2 ip = floor(p);
-	highp vec2 fp = fract(p);
-		fp = smoothstep(0.0, 1.0, fp);
-	highp float u = ip.x + ip.y * 57.0;
-	return mix(mix(random(u), random(u + 1.0), fp.x), mix(random(u + 57.0), random(u + 58.0), fp.x), fp.y);
-}
-
-float voronoi(highp vec2 p){
-	highp vec2 fp = fract(p);
-	highp vec2 ip = floor(p);
-	float dist = 1.0;
-	for(int y = -1; y <= 1; y++){
-		for(int x = -1; x <= 1; x++){
-			vec2 neighbor = vec2(float(x), float(y));
-			vec2 pointt = random2(ip + neighbor);
-			dist = min(dist, length(neighbor + pointt - fp));
-		}
-	}
-	return dist;
-}
-
 uniform highp float TOTAL_REAL_WORLD_TIME;
-
-float fractalb(highp vec2 pos, float amp){
-	float value = 0.0;
-	float amplitude = 0.5;
-	pos += TOTAL_REAL_WORLD_TIME * 0.001;
-
-	for(int i = 0; i < 3; i++){
-		value += voronoi(pos) * amplitude;
-		pos *= 2.8;
-		pos += TOTAL_REAL_WORLD_TIME * 0.03;
-		amplitude *= amp;
-	}
-	return 1.0-pow(0.1,max0(1.0-value));
-}
 
 vec3 toLinear(vec3 col){
 	return pow(col, vec3(2.2));
@@ -63,7 +20,7 @@ vec3 cloudcolor(){
 
 vec3 calcskycolor(float hor){
 	vec3 zenithc = mix(mix(mix(vec3(0.0,0.35,0.8),vec3(0.06,0.1,0.2),nfog),vec3(0.5,0.4,0.6),dfog),FOG_COLOR.rgb*2.0,rain);
-	vec3 horc = mix(mix(mix(vec3(0.8,0.9,1.0),vec3(1.0,0.4,0.5),dfog),zenithc+0.15,nfog),FOG_COLOR.rgb*2.0,rain);
+	vec3 horc = mix(mix(mix(vec3(1),vec3(1.0,0.4,0.5),dfog),zenithc+0.15,nfog),FOG_COLOR.rgb*2.0,rain);
 		zenithc = toLinear(zenithc);
 		horc = toLinear(horc);
 		zenithc = mix(zenithc,horc,hor);

@@ -21,8 +21,8 @@
 
 #ifndef BYPASS_PIXEL_SHADER
 varying vec4 color;
-varying vec3 cpos;
-varying	vec3 wpos;
+varying highp vec3 cpos;
+varying	highp vec3 wpos;
 #endif
 
 varying float wflag;

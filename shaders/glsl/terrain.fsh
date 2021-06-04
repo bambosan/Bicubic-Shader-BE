@@ -40,47 +40,52 @@ LAYOUT_BINDING(2) uniform sampler2D TEXTURE_2;
 #include "bsbe.cs.glsl"
 
 #ifdef waterbump
-float inoise(highp vec2 pos){
-	return noise2d(vec2(pos.x+TOTAL_REAL_WORLD_TIME,pos.y-TOTAL_REAL_WORLD_TIME))+noise2d(vec2(pos.x-TOTAL_REAL_WORLD_TIME,pos.y+TOTAL_REAL_WORLD_TIME));
+
+vec3 getTangent(vec3 normal){
+	vec3 tangent = vec3(0, 0, 0);
+	if(normal.x > 0.0){ tangent = vec3(0, 0, -1);
+	} else if(normal.x < -0.5){ tangent = vec3(0, 0, 1);
+	} else if(normal.y > 0.0){ tangent = vec3(1, 0, 0);
+	} else if(normal.y < -0.5){ tangent = vec3(1, 0, 0);
+	} else if(normal.z > 0.0){ tangent = vec3(1, 0, 0);
+	} else if(normal.z < -0.5){ tangent = vec3(-1, 0, 0);
+	}
+	return tangent;
 }
 
 vec3 calcwnormal(vec3 normal){
-	highp float w1 = inoise(cpos.xz);
-	highp float w2 = inoise(vec2(cpos.x-0.03,cpos.z));
-	highp float w3 = inoise(vec2(cpos.x,cpos.z-0.03));
-	vec3 rwnormal = normalize(vec3(w1-w2,w1-w3,1.0))*0.5+0.5;
+	vec3 rawnormal = texture2D(TEXTURE_0, uv0-fract(cpos.xz)/4.0+fract(cpos.xz*0.1+TOTAL_REAL_WORLD_TIME*0.1)/4.0).rgb*0.6;
+		rawnormal += texture2D(TEXTURE_0, uv0-fract(cpos.xz)/4.0+fract(cpos.xz*0.4-TOTAL_REAL_WORLD_TIME*0.2)/4.0).rgb*0.4;
+		rawnormal = rawnormal*2.0-1.0;
+		rawnormal.xy *= 0.2;
 
-	mat3 tbnmatrix = mat3(abs(normal.y)+normal.z,0.0,normal.x,
-	0.0,0.0,normal.y,
-	-normal.x,normal.y,normal.z);
-		rwnormal = rwnormal*2.0-1.0;
-		rwnormal = normalize(rwnormal*tbnmatrix);
-	return clamp(rwnormal,-1.0,1.0);
+	vec3 tangent = getTangent(normal);
+	vec3 binormal = normalize(cross(tangent, normal));
+	mat3 tbnmatrix = mat3(tangent.x, binormal.x, normal.x, tangent.y, binormal.y, normal.y, tangent.z, binormal.z, normal.z);
+		rawnormal = normalize(rawnormal*tbnmatrix);
+	return rawnormal;
 }
 #endif
 
-float fresnelschlick(float f0,float ndv){
-	return f0 + (1.-f0)*pow(1.0-ndv,5.0);
-}
-
-vec4 renderwater(vec4 diff,vec3 normal,highp vec3 uppos,vec3 lcolor,float ndv,float ndh){
+vec4 reflection(vec4 diff,vec3 normal,highp vec3 uppos,vec3 lcolor,float reftance,float reftivity){
+	highp vec3 vvector = normalize(-wpos);
 	highp vec3 rvector = reflect(normalize(wpos),normal);
 	vec3 skycolor = rendersky(rvector,uppos);
-	float fresnel = fresnelschlick(0.2,ndv);
+
+	highp float fresnel = reftance+(1.0-reftance)*pow(1.0-max0(dot(normal,vvector)),5.0);
+		fresnel = saturate(fresnel);
 
 	diff = vec4(0.0,0.0,0.0,fresnel);
 	diff = mix(diff,vec4(skycolor,1.0),fresnel);
 
-#ifdef rendercloud
-		rvector = rvector/rvector.y;
-	float cmap = fractalb(rvector.xz*0.4,1.43);
-	vec3 ccloud = cloudcolor();
-	diff = mix(diff,vec4(ccloud,0.8),cmap*fresnel*max0(dot(rvector,uppos)));
-#endif
+	if(reftivity>0.9){
+		highp vec3 lpos = vec3(-0.9848078,0.16477773,0.0);
+		highp float ndh = pow(max0(dot(normal,normalize(vvector+lpos))),256.0);
 
-	diff += vec4(lcolor,ndv*length(lcolor));
-	diff += ndh*vec4(skycolor,1.0)*dfog;
-	diff.rgb *= max(uv1.x,uv1.y);
+		diff += vec4(lcolor,fresnel*length(lcolor));
+		diff += ndh*vec4(skycolor,1.0)*dfog;
+	}
+	diff.rgb *= max(uv1.x,smoothstep(0.845,0.87,uv1.y));
 	return diff;
 }
 
@@ -103,6 +108,7 @@ vec3 illumination(vec3 diff,vec3 normal,vec3 lcolor,float blmap,bool water){
 	vec3 ambcolor = mix(mix(vec3(1.0,0.9,0.8),vec3(0.6,0.2,0.3),dusk),vec3(0.0,0.0,0.15),night);
 		amblmap += lcolor;
 		amblmap += ambcolor*shadow*uv1.y;
+
 	diff *= amblmap;
 	return diff;
 }
@@ -146,8 +152,8 @@ vec4 inColor = color;
 	#endif
 	if(color.g > color.b && color.a != 0.0){
 		diffuse.rgb *= mix(normalize(inColor.rgb),inColor.rgb,0.5);
-	}else{
-		diffuse.rgb *= (color.a == 0.0) ? inColor.rgb : sqrt(inColor.rgb);
+	} else {
+		diffuse.rgb *= (color.a == 0.0)?inColor.rgb:sqrt(inColor.rgb);
 	}
 #else
 	vec2 uv = inColor.xy;
@@ -158,25 +164,27 @@ vec4 inColor = color;
 
 	vec3 normal = normalize(cross(dFdx(cpos.xyz),dFdy(cpos.xyz)));
 	bool water = wflag > 0.4 && wflag < 0.6;
+	float reftance = 0.0, reftivity = 0.0;
+
+	reftance = mix(reftance, 0.04, rain);
+	reftivity = mix(reftivity, 0.5, rain);
+
 #ifdef waterbump
-	if(water) normal = calcwnormal(normal);
+	if(water){
+		reftance = 0.2;
+		reftivity = 1.0;
+		normal = calcwnormal(normal);
+	}
 #endif
-	diffuse.rgb = toLinear(diffuse.rgb);
 
 	float blmap = texture2D(TEXTURE_1,vec2(0,1)).r;
 	float lsource = mix(mix(0.0,uv1.x,smoothstep(blmap*pow(uv1.y,2.0),1.0,uv1.x)),uv1.x,rain*uv1.y);
 	vec3 lcolor = vec3(1.0,0.35,0.0)*lsource+pow(lsource,5.0)*0.6;
 
+	diffuse.rgb = toLinear(diffuse.rgb);
 	diffuse.rgb = illumination(diffuse.rgb,normal,lcolor,blmap,water);
 
 	highp vec3 uppos = normalize(vec3(0.0,abs(wpos.y),0.0));
-	highp vec3 vvector = normalize(-wpos);
-	highp vec3 lpos = normalize(vec3(-0.9848078,0.16477773,0.0));
-
-	highp float ndh = pow(max0(dot(normal,normalize(vvector+lpos))),256.0);
-	highp float ndv = max0(dot(normal,vvector));
-
-	if(water) diffuse = renderwater(diffuse,normal,uppos,lcolor,ndv,ndh);
 	vec3 newfc = rendersky(normalize(wpos),uppos);
 
 #ifdef UNDERWATER
@@ -184,18 +192,16 @@ vec4 inColor = color;
 		highp float caus = inoise(cpos.xz);
 		if(!water) diffuse.rgb = vec3(0.3,0.5,0.8)*diffuse.rgb+saturate(caus)*diffuse.rgb*uv1.y;
 	#endif
-
 	diffuse.rgb += pow(uv1.x,3.0)*sqrt(diffuse.rgb)*(1.0-uv1.y);
 	diffuse.rgb = mix(diffuse.rgb,toLinear(FOG_COLOR.rgb),pow(fogr,5.0));
 #else
-
-	float fresnel = fresnelschlick(0.04,ndv);
-	diffuse.rgb = mix(diffuse.rgb,newfc,(fresnel*rain*normal.y)*smoothstep(0.845,0.87,uv1.y)*0.5);
+	diffuse = reflection(diffuse, normal, uppos, lcolor, reftance, reftivity);
 #endif
 
 	diffuse.rgb = mix(diffuse.rgb,newfc,saturate(length(wpos)*(0.001+0.003*rain)));
 
 	diffuse.rgb = colorcorrection(diffuse.rgb);
+
 
 	gl_FragColor = diffuse;
 
