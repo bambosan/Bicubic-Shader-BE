@@ -162,7 +162,7 @@ vec4 inColor = color;
 	vec3 normal = normalize(cross(dFdx(cpos.xyz),dFdy(cpos.xyz)));
 	bool water = wflag > 0.4 && wflag < 0.6;
 	vec2 refval = vec2(0.0,0.0);
-		refval = mix(refval,vec2(0.04,0.5),rain);
+		refval = mix(refval,vec2(0.04,0.5),rain*normal.y);
 
 #ifdef waterbump
 	if(water){
