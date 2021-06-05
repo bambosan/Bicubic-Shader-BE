@@ -52,11 +52,11 @@ vec3 getTangent(vec3 normal){
 	return tangent;
 }
 
-vec3 calcwnormal(vec3 normal){
-	vec3 rawnormal = texture2D(TEXTURE_0, uv0-fract(cpos.xz)/4.0+fract(cpos.xz*0.1+TOTAL_REAL_WORLD_TIME*0.1)/4.0).rgb*0.6;
-		rawnormal += texture2D(TEXTURE_0, uv0-fract(cpos.xz)/4.0+fract(cpos.xz*0.4-TOTAL_REAL_WORLD_TIME*0.2)/4.0).rgb*0.4;
+vec3 calcwnormal(vec3 normal,vec2 pos){
+	vec3 rawnormal = texture2D(TEXTURE_0, uv0-fract(cpos.xz)/4.0+fract(pos*0.1+TOTAL_REAL_WORLD_TIME*0.1)/4.0).rgb*0.6;
+		rawnormal += texture2D(TEXTURE_0, uv0-fract(cpos.xz)/4.0+fract(pos*0.4-TOTAL_REAL_WORLD_TIME*0.2)/4.0).rgb*0.4;
 		rawnormal = rawnormal*2.0-1.0;
-		rawnormal.xy *= 0.2;
+		rawnormal.xy *= 0.15;
 
 	vec3 tangent = getTangent(normal);
 	vec3 binormal = normalize(cross(tangent, normal));
@@ -65,14 +65,9 @@ vec3 calcwnormal(vec3 normal){
 	return rawnormal;
 }
 
-float ccausticm(){
-	float cell = texture2D(TEXTURE_0, uv0-fract(cpos.xz)/4.0+fract(cpos.xz*0.5+TOTAL_REAL_WORLD_TIME*0.1)/4.0).a*0.5;
-		cell += texture2D(TEXTURE_0, uv0-fract(cpos.xz)/4.0+fract(cpos.xz*0.5-TOTAL_REAL_WORLD_TIME*0.2)/4.0).a*0.5;
-	return saturate(cell);
-}
 #endif
 
-vec4 reflection(vec4 diff,vec3 normal,highp vec3 uppos,vec3 lcolor,vec2 refval,bool water){
+vec4 reflection(vec4 diff,vec3 normal,highp vec3 uppos,vec3 lcolor,vec2 refval){
 	highp vec3 vvector = normalize(-wpos);
 	highp vec3 rvector = reflect(normalize(wpos),normal);
 	vec3 skycolor = rendersky(rvector,uppos);
@@ -80,17 +75,14 @@ vec4 reflection(vec4 diff,vec3 normal,highp vec3 uppos,vec3 lcolor,vec2 refval,b
 	highp float fresnel = refval.x+(1.0-refval.x)*pow(1.0-max0(dot(normal,vvector)),5.0);
 		fresnel = saturate(fresnel)*refval.y;
 
-	if(water)diff = vec4(0.0,0.0,0.0,fresnel);
 	diff = mix(diff,vec4(skycolor,1.0),fresnel);
 
 	if(refval.y>0.9){
 		highp vec3 lpos = vec3(-0.9848078,0.16477773,0.0);
 		highp float ndh = pow(max0(dot(normal,normalize(vvector+lpos))),256.0);
-
 		diff += vec4(lcolor,fresnel*length(lcolor));
 		diff += ndh*vec4(skycolor,1.0)*dfog;
 	}
-	diff.rgb *= max(uv1.x,smoothstep(0.845,0.87,uv1.y));
 	return diff;
 }
 
@@ -174,8 +166,12 @@ vec4 inColor = color;
 
 #ifdef waterbump
 	if(water){
+		diffuse = vec4(0.0,0.0,0.0,0.4);
 		refval = vec2(0.2,1.0);
-		normal = calcwnormal(normal);
+		vec3 wnormal = calcwnormal(normal,cpos.xz);
+		vec2 pwpos = cpos.xz;
+			pwpos += max0(dot(wnormal,normalize(-wpos)))*normalize(wpos).xz*2.0;
+		normal = calcwnormal(normal,pwpos);
 	}
 #endif
 
@@ -190,13 +186,11 @@ vec4 inColor = color;
 	vec3 newfc = rendersky(normalize(wpos),uppos);
 
 #ifdef UNDERWATER
-	#ifdef waterbump
-		if(!water)diffuse.rgb = vec3(0.3,0.5,0.8)*diffuse.rgb+ccausticm()*diffuse.rgb*uv1.y;
-	#endif
 	diffuse.rgb += pow(uv1.x,3.0)*sqrt(diffuse.rgb)*(1.0-uv1.y);
 	diffuse.rgb = mix(diffuse.rgb,toLinear(FOG_COLOR.rgb),pow(fogr,5.0));
 #else
-	diffuse = reflection(diffuse,normal,uppos,lcolor,refval,water);
+		refval *= max(uv1.x,smoothstep(0.845,0.87,uv1.y));
+	diffuse = reflection(diffuse,normal,uppos,lcolor,refval);
 #endif
 
 	diffuse.rgb = mix(diffuse.rgb,newfc,saturate(length(wpos)*(0.001+0.003*rain)));

@@ -20,7 +20,7 @@ vec3 cloudcolor(){
 
 vec3 calcskycolor(float hor){
 	vec3 zenithc = mix(mix(mix(vec3(0.0,0.35,0.8),vec3(0.06,0.1,0.2),nfog),vec3(0.5,0.4,0.6),dfog),FOG_COLOR.rgb*2.0,rain);
-	vec3 horc = mix(mix(mix(vec3(1),vec3(1.0,0.4,0.5),dfog),zenithc+0.15,nfog),FOG_COLOR.rgb*2.0,rain);
+	vec3 horc = mix(mix(mix(vec3(0.8,0.9,1.0),vec3(1.0,0.4,0.5),dfog),zenithc+0.15,nfog),FOG_COLOR.rgb*2.0,rain);
 		zenithc = toLinear(zenithc);
 		horc = toLinear(horc);
 		zenithc = mix(zenithc,horc,hor);
