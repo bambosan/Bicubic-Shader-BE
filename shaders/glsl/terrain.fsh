@@ -55,8 +55,8 @@ vec3 getTangent(vec3 normal){
 }
 
 vec3 calcwnormal(vec3 normal,highp vec2 pos){
-	vec3 rawnormal = texture2D(TEXTURE_0,fract(pos.xz*0.1+TOTAL_REAL_WORLD_TIME*0.1)*nplace).rgb*0.7;
-		rawnormal += texture2D(TEXTURE_0,fract(pos.xz*0.4+TOTAL_REAL_WORLD_TIME*0.2)*nplace).rgb*0.3;
+	vec3 rawnormal = texture2D(TEXTURE_0,fract(pos*0.1+TOTAL_REAL_WORLD_TIME*0.1)*nplace).rgb*0.7;
+		rawnormal += texture2D(TEXTURE_0,fract(pos*0.4-TOTAL_REAL_WORLD_TIME*0.2)*nplace).rgb*0.3;
 		rawnormal = rawnormal*2.0-1.0;
 		rawnormal.xy *= 0.15;
 
@@ -70,7 +70,18 @@ vec3 calcwnormal(vec3 normal,highp vec2 pos){
 
 #endif
 
-#include "scbsbe.cs.glsl"
+float fbm(highp vec2 pos,float amp){
+	float tot = 0.0, lac = 1.0;
+	pos += TOTAL_REAL_WORLD_TIME*0.001;
+
+	for(int i=0; i<3; i++){
+		tot += texture2D(TEXTURE_0,mod(pos,1.0)*nplace).a*amp/lac;
+		lac *= 2.2;
+		pos *= 2.8;
+		pos += TOTAL_REAL_WORLD_TIME*0.008;
+	}
+	return 1.0-pow(0.1,max0(1.0-tot));
+}
 
 vec4 reflection(vec4 diff,vec3 normal,highp vec3 uppos,vec3 lcolor,vec2 refval){
 	highp vec3 vvector = normalize(-wpos);
@@ -82,9 +93,9 @@ vec4 reflection(vec4 diff,vec3 normal,highp vec3 uppos,vec3 lcolor,vec2 refval){
 	diff = mix(diff,vec4(skycolor,1.0),fresnel);
 
 		rvector /= rvector.y;
-	vec4 cloudrf = rcloud(rvector.xz*0.1);
+	float cmap = fbm(rvector.xz*0.1,1.45-rain*0.5);
 	float cplace = smoothstep(1.0,0.95,length(rvector.xz))*float(dot(rvector,uppos)>0.0);
-	diff = mix(diff,cloudrf,cloudrf*fresnel*cplace*0.5);
+	diff = mix(diff,vec4(cloudcolor(),1.0),cmap*fresnel*cplace*0.5);
 
 	if(refval.y>0.9){
 		highp vec3 lpos = vec3(-0.9848078,0.16477773,0.0);
