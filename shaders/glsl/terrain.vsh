@@ -65,6 +65,8 @@ void main()
 		}
 	#endif
 	#if defined(ALPHA_TEST) && defined(vertexwave)
+		// crop/plants detection from esbe-2g by @McbeEringi
+		// see : https://github.com/McbeEringi/esbe-2g
 		vec3 frp = fract(POSITION.xyz);
 		if((COLOR.r!=COLOR.g&&COLOR.g!=COLOR.b&&frp.y!=.015625)||(frp.y==.9375&&(frp.x==0.||frp.z==0.))){
 			worldPos.xyz += gwave*.06*(1.-saturate(length(worldPos.xyz)/FAR_CHUNKS_DISTANCE))*TEXCOORD_1.y;
