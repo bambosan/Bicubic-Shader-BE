@@ -13,7 +13,6 @@ LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
 float fbm(highp vec2 pos,float amp){
 	float tot = 0.0, lac = 1.0;
 	pos += TOTAL_REAL_WORLD_TIME*.001;
-
 	for(int i=0; i<3; i++){
 		tot += texture2D(TEXTURE_0, pos).r * amp/lac;
 		lac *= 2.2;
@@ -48,7 +47,6 @@ vec4 rcloud(highp vec2 pos){
 vec4 rcirrus(highp vec2 pos){
 	float tot = 0.0, lac = 1.0;
 	pos += TOTAL_REAL_WORLD_TIME * 0.001;
-
 	for(int i = 0; i < 3; i++){
 		tot += texture2D(TEXTURE_0, pos).a / lac;
 		pos += tot * 0.05;

@@ -30,8 +30,8 @@ vec3 calcskycolor(float hor){
 
 vec3 rendersky(highp vec3 npos, highp vec3 uppos){
 	float zenith = max0(dot(npos, uppos));
-	float mie = pow(1.0 - length(npos.zy), 4.0) * 10.0;
-	float hor = pow(1.0 - zenith, 2.5) + mie*dfog;
+	float mie = pow(1.0-length(npos.zy),4.0)*10.0;
+	float hor = pow(1.0-zenith,2.5)+mie*dfog;
 	vec3 col = calcskycolor(hor);
 	return col;
 }
