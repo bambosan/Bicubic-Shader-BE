@@ -198,7 +198,6 @@ vec4 inColor = color;
 	diffuse.rgb = illumination(diffuse.rgb,normal,lcolor,blmap,water);
 
 	highp vec3 uppos = normalize(vec3(0.0,abs(wpos.y),0.0));
-	vec3 newfc = rendersky(normalize(wpos),uppos);
 
 #ifdef UNDERWATER
 	diffuse.rgb += pow(uv1.x,3.0)*sqrt(diffuse.rgb)*(1.0-uv1.y);
@@ -206,9 +205,10 @@ vec4 inColor = color;
 #else
 		refval *= max(uv1.x,smoothstep(0.845,0.87,uv1.y));
 	diffuse = reflection(diffuse,normal,uppos,lcolor,refval);
-#endif
 
+	vec3 newfc = rendersky(normalize(wpos),uppos);
 	diffuse.rgb = mix(diffuse.rgb,newfc*vec3(0.8,0.9,1.0),saturate(length(wpos)*(0.001+0.003*rain)));
+#endif
 
 	diffuse.rgb = colorcorrection(diffuse.rgb);
 
