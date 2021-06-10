@@ -37,7 +37,9 @@ LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
 LAYOUT_BINDING(1) uniform sampler2D TEXTURE_1;
 LAYOUT_BINDING(2) uniform sampler2D TEXTURE_2;
 
-#include "bsbe.cs.glsl"
+#include "gvarbsbe.cs.glsl"
+
+#define nplace vec2(0.25,0.5)+vec2(0.25806452,0.45454545)
 
 #ifdef waterbump
 vec3 getTangent(vec3 normal){
@@ -52,20 +54,23 @@ vec3 getTangent(vec3 normal){
 	return tangent;
 }
 
-vec3 calcwnormal(vec3 normal,vec2 pos){
-	vec3 rawnormal = texture2D(TEXTURE_0, uv0-fract(cpos.xz)/4.0+fract(pos*0.1+TOTAL_REAL_WORLD_TIME*0.1)/4.0).rgb*0.6;
-		rawnormal += texture2D(TEXTURE_0, uv0-fract(cpos.xz)/4.0+fract(pos*0.4-TOTAL_REAL_WORLD_TIME*0.2)/4.0).rgb*0.4;
+vec3 calcwnormal(vec3 normal,highp vec2 pos){
+	vec3 rawnormal = texture2D(TEXTURE_0,fract(pos.xz*0.1+TOTAL_REAL_WORLD_TIME*0.1)*nplace).rgb*0.7;
+		rawnormal += texture2D(TEXTURE_0,fract(pos.xz*0.4+TOTAL_REAL_WORLD_TIME*0.2)*nplace).rgb*0.3;
 		rawnormal = rawnormal*2.0-1.0;
 		rawnormal.xy *= 0.15;
 
 	vec3 tangent = getTangent(normal);
 	vec3 binormal = normalize(cross(tangent, normal));
 	mat3 tbnmatrix = mat3(tangent.x, binormal.x, normal.x, tangent.y, binormal.y, normal.y, tangent.z, binormal.z, normal.z);
+
 		rawnormal = normalize(rawnormal*tbnmatrix);
 	return rawnormal;
 }
 
 #endif
+
+#include "scbsbe.cs.glsl"
 
 vec4 reflection(vec4 diff,vec3 normal,highp vec3 uppos,vec3 lcolor,vec2 refval){
 	highp vec3 vvector = normalize(-wpos);
@@ -74,8 +79,12 @@ vec4 reflection(vec4 diff,vec3 normal,highp vec3 uppos,vec3 lcolor,vec2 refval){
 
 	highp float fresnel = refval.x+(1.0-refval.x)*pow(1.0-max0(dot(normal,vvector)),5.0);
 		fresnel = saturate(fresnel)*refval.y;
-
 	diff = mix(diff,vec4(skycolor,1.0),fresnel);
+
+		rvector /= rvector.y;
+	vec4 cloudrf = rcloud(rvector.xz*0.1);
+	float cplace = smoothstep(1.0,0.95,length(rvector.xz))*float(dot(rvector,uppos)>0.0);
+	diff = mix(diff,cloudrf,cloudrf*fresnel*cplace*0.5);
 
 	if(refval.y>0.9){
 		highp vec3 lpos = vec3(-0.9848078,0.16477773,0.0);
@@ -167,10 +176,9 @@ vec4 inColor = color;
 #ifdef waterbump
 	if(water){
 		diffuse = vec4(0.0,0.0,0.0,0.4);
-		refval = vec2(0.2,1.0);
+		refval = vec2(0.1,1.0);
 		vec3 wnormal = calcwnormal(normal,cpos.xz);
-		vec2 pwpos = cpos.xz;
-			pwpos += max0(dot(wnormal,normalize(-wpos)))*normalize(wpos).xz*2.0;
+		highp vec2 pwpos = cpos.xz+max0(dot(wnormal,normalize(-wpos))*2.0)*normalize(wpos).xz;
 		normal = calcwnormal(normal,pwpos);
 	}
 #endif
@@ -193,7 +201,7 @@ vec4 inColor = color;
 	diffuse = reflection(diffuse,normal,uppos,lcolor,refval);
 #endif
 
-	diffuse.rgb = mix(diffuse.rgb,newfc,saturate(length(wpos)*(0.001+0.003*rain)));
+	diffuse.rgb = mix(diffuse.rgb,newfc*vec3(0.8,0.9,1.0),saturate(length(wpos)*(0.001+0.003*rain)));
 
 	diffuse.rgb = colorcorrection(diffuse.rgb);
 

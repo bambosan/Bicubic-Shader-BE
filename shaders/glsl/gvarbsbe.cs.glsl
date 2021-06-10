@@ -37,7 +37,7 @@ vec3 rendersky(highp vec3 npos, highp vec3 uppos){
 }
 
 vec3 colorcorrection(vec3 col){
-	col *= 1.3;
+	col *= 1.5;
  	col = col/(0.9813*col+0.1511);
 	float lum = dot(col,vec3(0.2125,0.7154,0.0721));
 	col = mix(vec3(lum),col,1.1);

@@ -19,7 +19,7 @@ varying vec2 uv;
 LAYOUT_BINDING(0) uniform sampler2D TEXTURE_0;
 
 varying highp vec3 spos;
-#include "bsbe.cs.glsl"
+#include "gvarbsbe.cs.glsl"
 
 void main(){
 

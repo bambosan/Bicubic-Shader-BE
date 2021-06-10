@@ -6,7 +6,7 @@
 
 varying highp float skyh;
 
-#include "bsbe.cs.glsl"
+#include "gvarbsbe.cs.glsl"
 
 void main(){
     vec3 skyplanecolor = calcskycolor(pow(skyh*2.0,2.0));

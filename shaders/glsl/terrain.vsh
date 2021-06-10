@@ -40,7 +40,7 @@ const float rB = 1.0;
 const vec3 UNIT_Y = vec3(0,1,0);
 const float DIST_DESATURATION = 56.0 / 255.0; //WARNING this value is also hardcoded in the water color, don'tchange
 
-#include "bsbe.cs.glsl"
+#include "gvarbsbe.cs.glsl"
 
 void main()
 {
