@@ -3,10 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>BSBE Lite</title>
+  <title>Bicubic Shaders BE</title>
   <meta name="description" content="A Shaders for Minecraft: Bedrock Edition that support Renderdragon Version">
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8231611512488101"
-     crossorigin="anonymous"></script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8231611512488101" crossorigin="anonymous"></script>
   <script src="https://kit.fontawesome.com/1bdb927010.js"></script>
   <script src="https://mcbeeringi.github.io/petitgl/petitgl.js"></script>
   <link href="https://unpkg.com/swiper/swiper-bundle.min.css" rel="stylesheet">
@@ -133,7 +132,7 @@
     }
   </style>
   <script>
-    const loadd = async() => { return (await (await fetch("https://api.github.com/repos/bambosan/BSBE-Lite/releases")).json()) }
+    const loadd = async() => { return (await (await fetch("https://api.github.com/repos/bambosan/Bicubic-Shaders-BE/releases")).json()) }
     loadd().then(res => { uinfo.innerHTML = (res[0].assets[0].updated_at).slice(0,10); })
   </script>
 </head>
@@ -187,16 +186,18 @@ void main(){
     loop();
   </script>
   <div id="con">
-    <p id="tith">BSBE Lite</p>
+    <p id="tith">Bicubic Shaders BE (BSBE)</p>
     <div id="box">
-      <p id="clh">A Shader/Renderdragon Materials for Minecraft: Bedrock Edition that aims to be beautiful look with colorful tones and some features like underwater caustic, 2D cloud, water reflection, water bump, etc.</p><br>
+      <p id="clh">A Shader/Renderdragon Materials for Minecraft: Bedrock Edition that aims to be beautiful look with colorful tones and some features like underwater caustic, fake 3D cloud, sky and cloud reflection, waterbump, etc.</p><br>
       <div class="swiper mySwiper">
 				<div class="swiper-wrapper">
-					<div class="swiper-slide"><img src="./pic/ss1.jpg" alt="mirai-shaders-be"></div>
-					<div class="swiper-slide"><img src="./pic/ss2.jpg" alt="mirai-shaders-be"></div>
-					<div class="swiper-slide"><img src="./pic/ss3.jpg" alt="mirai-shaders-be"></div>
-					<div class="swiper-slide"><img src="./pic/ss4.jpg" alt="mirai-shaders-be"></div>
-					<div class="swiper-slide"><img src="./pic/ss5.jpg" alt="mirai-shaders-be"></div>
+					<div class="swiper-slide"><img src="./pic/ss1.jpg" alt="bicubic-shaders-be"></div>
+					<div class="swiper-slide"><img src="./pic/ss2.jpg" alt="bicubic-shaders-be"></div>
+					<div class="swiper-slide"><img src="./pic/ss3.jpg" alt="bicubic-shaders-be"></div>
+					<div class="swiper-slide"><img src="./pic/ss4.jpg" alt="bicubic-shaders-be"></div>
+					<div class="swiper-slide"><img src="./pic/ss5.jpg" alt="bicubic-shaders-be"></div>
+          <div class="swiper-slide"><img src="./pic/ss6.jpg" alt="bicubic-shaders-be"></div>
+          <div class="swiper-slide"><img src="./pic/ss7.jpg" alt="bicubic-shaders-be"></div>
 				</div>
 				<div class="swiper-button-next" style="color: #dfdfdf"></div>
 				<div class="swiper-button-prev" style="color: #dfdfdf"></div>
@@ -214,7 +215,6 @@ void main(){
       <ul id="clh">
 				<li>minor improvements and optimizations</li>
         <li>added Minecraft vanilla AO</li>
-        <li>added support for MCBE's Windows and iOS versions</li>
 				<li>now this shader only supports MCBE with the Renderdragon engine</li>
 			</ul>
     </div>
@@ -235,19 +235,19 @@ void main(){
     <br><br>
     <p id="he2">Download</p><hr><br>
     <div id="box">
-      <p>Latest Update: <span id="uinfo"></span> Version 1.3</p><br>
+      <p>Latest Update: <span id="uinfo"></span> Version 3.1</p><br>
       <p>Resourcepack</p>
-      <a id="ah" href="https://github.com/bambosan/BSBE-Lite/releases/download/1.3/BSBE-Lite-RP.mcpack"><i class="fas fa-download"></i> Download</a>
+      <a id="ah" href="https://github.com/bambosan/Bicubic-Shaders-BE/releases/download/3.1/BSBE-RD-Material-Support.mcpack"><i class="fas fa-download"></i> Download</a>
       <br><br>
       <p>Renderdragon Materials:</p>
       <p>Android</p>
-      <a id="ah" href="https://github.com/bambosan/BSBE-Lite/releases/download/1.3/BSBE-Lite-RD-Material-Android.zip"><i class="fas fa-download"></i> Download</a>
+      <a id="ah" href="https://github.com/bambosan/Bicubic-Shaders-BE/releases/download/3.1/BSBE-RD-Materials-Android.zip"><i class="fas fa-download"></i> Download</a>
       <br><br>
       <p>iOS</p>
-      <a id="ah" href="https://github.com/bambosan/BSBE-Lite/releases/download/1.3/BSBE-Lite-RD-Material-iOS.zip"><i class="fas fa-download"></i> Download</a>
+      <a id="ah" href="https://github.com/bambosan/Bicubic-Shaders-BE/releases/download/3.1/BSBE-RD-Materials-iOS.zip"><i class="fas fa-download"></i> Download</a>
       <br><br>
       <p>Windows</p>
-      <a id="ah" href="https://github.com/bambosan/BSBE-Lite/releases/download/1.3/BSBE-Lite-RD-Material-Windows.zip"><i class="fas fa-download"></i> Download</a>
+      <a id="ah" href="https://github.com/bambosan/Bicubic-Shaders-BE/releases/download/3.1/BSBE-RD-Materials-Windows.zip"><i class="fas fa-download"></i> Download</a>
       <br><br>
       <a href="https://youtu.be/XbtFd6DrDM8" target="_blank"><u>How To Install on Android</u></a><br>
       <a href="https://youtu.be/fVxb543A8LE?t=80" target="_blank"><u>How To Install on iOS</u></a><br>
@@ -264,8 +264,6 @@ void main(){
     <div id="box">
       <p id="clh">Thanks to<br>
         <a href="https://github.com/ddf8196" target="_blank"> <u>ddf8196</u></a> for making awesome tools that make this thing possible<br>
-        <a href="https://mobile.twitter.com/RinInReal" target="_blank"> <u>Rinloid</u></a> for helping me compiling material files and also test it<br>
-        <a href="https://mobile.twitter.com/Elsacha12054186" target="_blank"><u> Elsa</u> for testing material files</a>
       </p>
     </div>
     <br><br>
