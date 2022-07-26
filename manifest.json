@@ -1,47 +1,18 @@
 {
     "format_version": 2,
-    "metadata": {
-        "authors": [
-            "sad"
-        ],
-        "url": "https://github.com/Mcbamboo/bicubic-shaders-be",
-        "license": "MIT License"
-    },
     "header": {
-        "name": "Bicubic shaders be 3.1 dev",
-        "description": "a shader for minecraft be",
-        "uuid": "a52ad973-b3c5-6edd-0f4c-13cc98df41cb",
-        "version": [0, 3, 1],
-        "min_engine_version": [1, 14, 1]
+        "name": "BSBE RD Material Support",
+        "description": "Additional resource pack for BSBE RenderDragon materials that enables cubemap shading and custom vertex color",
+        "uuid": "c737a346-6ba5-4559-86e8-0856574930e3",
+        "version": [0, 1, 4],
+        "min_engine_version": [1, 18, 30]
     },
     "modules": [
         {
-            "description": "a shader for minecraft be",
+            "description": "Additional resource pack for BSBE RenderDragon materials that enables cubemap shading and custom vertex color",
             "type": "resources",
-            "uuid": "ecfae6a2-2007-d116-5760-29667d615197",
-            "version": [0, 3, 1]
-        }
-    ],
-    "subpacks": [
-        {
-            "folder_name": "s3",
-            "name": "no clouds, waterbump and water plants wave",
-            "memory_tier": 1
-        },
-        {
-            "folder_name": "s2",
-            "name": "no clouds and waterbump",
-            "memory_tier": 2
-        },
-        {
-            "folder_name": "s1",
-            "name": "no clouds",
-            "memory_tier": 3
-        },
-        {
-            "folder_name": "s0",
-            "name": "regular",
-            "memory_tier": 4
+            "uuid": "1585e203-99e7-436e-ab26-19633460722c",
+            "version": [0, 1, 4]
         }
     ]
 }
