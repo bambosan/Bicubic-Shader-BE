@@ -105,7 +105,7 @@ void main() {
     vec4 diffuse;
 
 #if defined(DEPTH_ONLY_OPAQUE) || defined(DEPTH_ONLY)
-    diffuse = vec4(1.0, 1.0, 1.0, 1.0);
+    diffuse.rgb = vec3(1.0, 1.0, 1.0);
 #else
     diffuse = texture2D(s_MatTexture, v_texcoord0);
 
@@ -121,8 +121,13 @@ void main() {
     #else
         diffuse *= v_color0;
     #endif
+#endif
 
+#ifndef TRANSPARENT
     diffuse.a = 1.0;
+#endif
+
+#if !defined(DEPTH_ONLY_OPAQUE) || !defined(DEPTH_ONLY)
     diffuse.rgb = pow(diffuse.rgb, vec3(2.2, 2.2, 2.2));
 
     float rain = smoothstep(0.6, 0.3, fogControl.x);
@@ -175,16 +180,16 @@ void main() {
         diffuse.rgb *= max(v_lightmapUV.x, v_lightmapUV.y);
     }
 
+    vec3 nFogColor = skyRender(normalize(worldPosi), v_fog.rgb, fogControl, rain, duskFog, nightFog);
 	if(fogControl.x == 0.0){
         if(!isWater){
             float causMap = calcWave(chunkPos.xz, frameTime);
             diffuse.rgb = vec3(0.3, 0.6, 1.0) * diffuse.rgb + diffuse.rgb * max(causMap, 0.0) * v_lightmapUV.y;
         }
         diffuse.rgb += diffuse.rgb * (v_lightmapUV.x * v_lightmapUV.x) * (1.0 - v_lightmapUV.y);
-	}
-
-	vec3 nFogColor = skyRender(normalize(worldPosi), v_fog.rgb, fogControl, rain, duskFog, nightFog);
-    diffuse.rgb = mix(diffuse.rgb, nFogColor * vec3(0.6, 0.8, 1.0), fogDistance * 0.05);
+	} else {
+        diffuse.rgb = mix(diffuse.rgb, nFogColor * vec3(0.6, 0.8, 1.0), fogDistance * 0.05);
+    }
     diffuse.rgb = mix(diffuse.rgb, nFogColor, v_fog.a);
 
     vec3 curr = unchartedModified(diffuse.rgb * 7.0);
