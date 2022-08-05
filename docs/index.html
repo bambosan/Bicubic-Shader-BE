@@ -7,7 +7,6 @@
   <meta name="description" content="A Shaders for Minecraft: Bedrock Edition that support Renderdragon Version">
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8231611512488101" crossorigin="anonymous"></script>
   <script src="https://kit.fontawesome.com/1bdb927010.js"></script>
-  <script src="https://mcbeeringi.github.io/petitgl/petitgl.js"></script>
   <link href="https://unpkg.com/swiper/swiper-bundle.min.css" rel="stylesheet">
   <style>
     *{
@@ -15,7 +14,7 @@
       --anc: #dfdfdf;
       --aac: red;
       --bgc: linear-gradient(rgb(18, 28, 53), rgb(61, 69, 104));
-      --acc: #222222;
+      --acc: #22222294;
       --hrc: #9a92aa;
       margin: 0;
       padding: 0
@@ -49,8 +48,12 @@
       }
     }
     body{
+      height: 100vh;
       font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
       color: var(--fgc);
+      background: var(--bgc);
+      background-repeat: no-repeat;
+      background-attachment: fixed;
       -webkit-tap-highlight-color: transparent
     }
     a{
@@ -122,14 +125,6 @@
         height: 100%;
         object-fit: cover
     }
-    canvas{
-      position: fixed;
-      top:0;
-      left:0;
-      width: 100%;
-      height: 100vh;
-      z-index:-1
-    }
   </style>
   <script>
     const loadd = async() => { return (await (await fetch("https://api.github.com/repos/bambosan/Bicubic-Shaders-BE/releases")).json()) }
@@ -137,54 +132,6 @@
   </script>
 </head>
 <body>
-  <canvas id="sky"></canvas>
-  <script>
-    const main=new PetitGL(sky,[0,0,0,1])
-      .resize(innerWidth, innerHeight)
-      .att([
-        {name:'_uv',data:[-1,-1, 1,-1, -1,1, 1,1],slice:2}
-      ])
-      .ibo([
-        {name:'ibo',data:[0,1,2, 3,2,1]}
-      ])
-      .compile(
-        'test',
-        `attribute vec2 UV;
-void main(){ gl_Position=vec4(UV,0,1);}`,
-        `precision highp float;
-uniform float time;
-uniform vec2 res;
-
-vec2 rand22(vec2 p){
-  p = vec2(dot(p,vec2(12.9898,78.233)),dot(p,vec2(26.65125,83.054543)));
-  return fract(sin(p)*43758.5453);
-}
-float stars(vec2 p){
-  p *= 1024.;
-  float d = 1.e10;
-  for(float i=-1.; i<=1.; i+=1.){for(float j=-1.; j<=1.; j+=1.){
-    vec2 g = floor(p)+vec2(i,j);
-    g = floor(p)-g-rand22(mod(g,res))+fract(sin(dot(g.xy,vec2(54.90898,18.233)))*4337.5453);g*=1.25;
-    d = min(d,dot(g,g));
-  }}
-  return 2.*(smoothstep(.95,1.,(1.-sqrt(d))));
-}
-void main(){
-  vec2 c = gl_FragCoord.xy/res;c.x *= res.x/res.y;
-  gl_FragColor = mix(vec4(.24,.27,.41,1),vec4(0.07,0.11,0.21,1),c.y)+vec4(vec3(stars(c+time*1e-4)),1);
-}`
-      )
-      .defAtt('test',['UV'])
-      .defUni('test',['time','res']),loop=()=>{ requestAnimationFrame(loop);
-        main.uni('test',
-        [
-				  {loc:'time',data:[(Date.now()*.001)%86400-43200],type:'f'},
-				  {loc:'res',data:[main.c.width,main.c.height],type:'f'}
-			  ]
-        ).draw('test',[{loc:'UV',att:'_uv'}],'ibo').flush();
-      };
-    loop();
-  </script>
   <div id="con">
     <p id="tith">Bicubic Shaders BE</p>
     <div id="box">
@@ -204,13 +151,7 @@ void main(){
 			</div>
     </div>
     <br><br>
-    <!-- horadunit -->
-    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-8231611512488101" data-ad-slot="4141086993" data-ad-format="auto" data-full-width-responsive="true"></ins>
-    <script>
-      (adsbygoogle = window.adsbygoogle || []).push({});
-    </script>
-    <br><br>
-    <p id="he2">Changelog</p><hr><br>
+    <p id="he2">Changelog</p>
     <div id="box">
       <ul id="clh">
         <li>new this shader support MCBE with Renderdragon engine</li>
@@ -227,7 +168,7 @@ void main(){
 			</ul>
     </div>
     <br><br>
-    <p id="he2">Note</p><hr><br>
+    <p id="he2">Note</p>
     <div id="box">
       <ul id="clh">
 				<li>Don't reupload the file. If you want to share it, just use this github page link !</li>
@@ -235,13 +176,7 @@ void main(){
 			</ul>
     </div>
     <br><br>
-    <!-- horadunit -->
-    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-8231611512488101" data-ad-slot="4141086993" data-ad-format="auto" data-full-width-responsive="true"></ins>
-    <script>
-      (adsbygoogle = window.adsbygoogle || []).push({});
-    </script>
-    <br><br>
-    <p id="he2">Download</p><hr><br>
+    <p id="he2">Download</p>
     <div id="box">
       <p>Latest Update: <span id="uinfo"></span> Version 3.1</p><br>
       <p>Resourcepack</p>
@@ -262,20 +197,14 @@ void main(){
       <a href="https://youtu.be/qe7m0YRGHs8?t=280" target="_blank"><u>How To Install on Windows</u></a>
     </div>
     <br><br>
-    <!-- horadunit -->
-    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-8231611512488101" data-ad-slot="4141086993" data-ad-format="auto" data-full-width-responsive="true"></ins>
-    <script>
-      (adsbygoogle = window.adsbygoogle || []).push({});
-    </script>
-    <br><br>
-    <p id="he2">Credits</p><hr><br>
+    <p id="he2">Credits</p>
     <div id="box">
       <p id="clh">Thanks to<br>
         <a href="https://github.com/ddf8196" target="_blank"> <u>ddf8196</u></a> for making awesome tools that make this thing possible<br>
       </p>
     </div>
     <br><br>
-    <p id="he2">See My Activity on</p><hr><br>
+    <p id="he2">See My Activity on</p>
     <div id="box">
       <a href="https://github.com/bambosan" target="_blank"><i class="fab fa-github"></i> Github</a>
       <br>
@@ -286,6 +215,12 @@ void main(){
     <footer>
       bambosan 2022<br>background rendered with <a href="https://mcbeeringi.github.io/petitgl/"><u>PetitGL</u></a> by <a href="https://twitter.com/mcbeeringi/"><u>McbeEringi</u></a>
     </footer>
+    <br><br>
+    <!-- horadunit -->
+    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-8231611512488101" data-ad-slot="4141086993" data-ad-format="auto" data-full-width-responsive="true"></ins>
+    <script>
+      (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
   </div>
   <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
 	<script>
