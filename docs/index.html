@@ -50,9 +50,6 @@
     body{
       font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
       color: var(--fgc);
-      background: var(--bgc);
-      background-repeat: no-repeat;
-      background-attachment: fixed;
       -webkit-tap-highlight-color: transparent
     }
     a{
@@ -71,8 +68,7 @@
     #con{
       margin: 0 auto;
       padding: 0 0 20px;
-      width: 70vw;
-      height: 100vh
+      width: 70vw
     }
     #tith{
       margin: 150px 0 30px 0;
@@ -125,6 +121,15 @@
         height: 100%;
         object-fit: cover
     }
+    #bg{
+      position: fixed;
+      top:0;
+      left:0;
+      width: 100%;
+      height: 100vh;
+      z-index:-1;
+      background: var(--bgc);
+    }
   </style>
   <script>
     const loadd = async() => { return (await (await fetch("https://api.github.com/repos/bambosan/Bicubic-Shaders-BE/releases")).json()) }
@@ -132,6 +137,7 @@
   </script>
 </head>
 <body>
+  <div id="bg"></div>
   <div id="con">
     <p id="tith">Bicubic Shaders BE</p>
     <div id="box">
