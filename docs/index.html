@@ -7,48 +7,20 @@
   <meta name="description" content="A Shaders for Minecraft: Bedrock Edition that support Renderdragon Version">
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8231611512488101" crossorigin="anonymous"></script>
   <script src="https://kit.fontawesome.com/1bdb927010.js"></script>
-  <link href="https://unpkg.com/swiper/swiper-bundle.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open Sans">
   <style>
     *{
       --fgc: #dfdfdf;
       --anc: #dfdfdf;
       --aac: red;
-      --bgc: linear-gradient(rgb(18, 28, 53), rgb(61, 69, 104));
+      --bgc: black;
       --acc: #22222294;
       --hrc: #9a92aa;
       margin: 0;
       padding: 0
     }
-    @keyframes anim1{
-      from{
-        opacity: 0;
-        transform: translateY(-20px);
-      }
-      to{
-        opacity: 1;
-        transform: translateY(0px);
-      }
-    }
-    @keyframes anim2{
-      from{
-        opacity: 0;
-        transform: translateX(-20px);
-      }
-      to{
-        opacity: 1;
-        transform: translateX(0px);
-      }
-    }
-    @keyframes anim3{
-      from{
-        width: 0;
-      }
-      to{
-        width: 100%;
-      }
-    }
     body{
-      font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+      font-family:'Open Sans';
       color: var(--fgc);
       -webkit-tap-highlight-color: transparent
     }
@@ -57,69 +29,45 @@
       text-decoration: none;
       transition: all 0.3s
     }
-    hr{
-      height: 1px;
-      background-color: var(--hrc);
-      border: none;
-      animation-name: anim3;
-      animation-duration: 1s;
+    img{
+        width: 48%; 
+        height: 100%;
+        padding: 5px
     }
     a:hover{ color: var(--aac) }
     #con{
+      text-align: center;
       margin: 0 auto;
       padding: 0 0 20px;
       width: 70vw
     }
-    #tith{
+    #he1{
       margin: 150px 0 30px 0;
       font-size: 2.7em;
-      line-height: 20px;
-      animation-name: anim2;
-      animation-duration: 0.5s
+      line-height: 20px
     }
-    #tith #abo{ font-size: 16px; line-height: 0 }
     #he2{
       margin-bottom: 5px;
-      font-size: 1.8em;
-      animation-name: anim2;
-      animation-duration: 0.5s
+      font-size: 1.8em
     }
-    #box{
-      display: inline-block;
-      max-width: 95%;
-      margin-bottom: 10px;
-      padding: 10px;
-      background-color: var(--acc);
-      animation-name: anim1;
-      animation-duration: 2s
-    }
-    #box #ah{ font-size: 1.5em }
-    #bos a{ font-size: 1em }
-    #box p{ font-size: 1em }
-    #box ul{ margin-left: 20px; font-size: 1em }
-    #box:last-of-type{ line-height: 35px; }
-    #box:last-of-type a{ font-size: 1.2em }
     #clh { line-height: 25px }
     footer{ padding: 50px 0 20px 0 }
     @media (max-width: 850px){ #con{ width: 90vw } }
     @media (max-width: 658px){
+      img{
+        width: 100%; 
+        height: 100%;
+        padding: 5px 0 5px 0
+      }
       #con{ width: 90vw }
-      #tith{ margin: 70px 0 30px 0; font-size: 2.3em }
-      #tith #abo{ font-size: 14px; line-height: 0 }
+      #he1{ margin: 70px 0 30px 0; font-size: 2.3em }
       #he2{ font-size: 1.5em }
-      #box a{ font-size: 1.2em }
     }
     @media (max-width: 500px){
       #con{
         padding: 10px;
         width: 95vw
       }
-    }
-    #box .swiper-slide img{
-        display: block;
-        width: 100%;
-        height: 100%;
-        object-fit: cover
     }
     #bg{
       position: fixed;
@@ -131,130 +79,101 @@
       background: var(--bgc);
     }
   </style>
-  <script>
-    const loadd = async() => { return (await (await fetch("https://api.github.com/repos/bambosan/Bicubic-Shaders-BE/releases")).json()) }
-    loadd().then(res => { uinfo.innerHTML = (res[0].assets[0].updated_at).slice(0,10); })
-  </script>
 </head>
 <body>
   <div id="bg"></div>
   <div id="con">
-    <p id="tith">Bicubic Shaders BE</p>
-    <div id="box">
-      <p id="clh">A Shader/Renderdragon Materials for Minecraft: Bedrock Edition that aims to be beautiful look with colorful tones and some features like underwater caustic, fake 3D cloud, sky and cloud reflection, waterbump, etc.</p><br>
-      <div class="swiper mySwiper">
-				<div class="swiper-wrapper">
-					<div class="swiper-slide"><img src="./pic/ss1.jpg" alt="bicubic-shaders-be"></div>
-					<div class="swiper-slide"><img src="./pic/ss2.jpg" alt="bicubic-shaders-be"></div>
-					<div class="swiper-slide"><img src="./pic/ss3.jpg" alt="bicubic-shaders-be"></div>
-					<div class="swiper-slide"><img src="./pic/ss4.jpg" alt="bicubic-shaders-be"></div>
-					<div class="swiper-slide"><img src="./pic/ss5.jpg" alt="bicubic-shaders-be"></div>
-          <div class="swiper-slide"><img src="./pic/ss6.jpg" alt="bicubic-shaders-be"></div>
-          <div class="swiper-slide"><img src="./pic/ss7.jpg" alt="bicubic-shaders-be"></div>
-				</div>
-				<div class="swiper-button-next" style="color: #dfdfdf"></div>
-				<div class="swiper-button-prev" style="color: #dfdfdf"></div>
-			</div>
-    </div>
-    <br><br>
-    <p id="he2">Changelog</p>
-    <div id="box">
-      <ul id="clh">
-        <li>new this shader support MCBE with Renderdragon engine</li>
-        <li>new style tonemap</li>
-        <li>improve clouds</li>
-        <li>improve sky</li>
-        <li>improve water reflection</li>
-        <li>more vibrant color</li>
-        <li>change underwater fog</li>
-        <li>added foggy effect</li>
-        <li>added Minecraft vanilla AO</li>
-        <li>remove sun reflection on water</li>
-				<li>little optimizations</li>
-			</ul>
-    </div>
-    <br><br>
+    <header id="he1">Bicubic Shaders BE (BSBE)</header>
+    <p id="clh">A Shader/Renderdragon Materials for Minecraft: Bedrock Edition that aims to be beautiful look with colorful tones and some features like underwater caustic, fake 3D cloud, sky and cloud reflection, waterbump, etc.</p>
+    <br>
+    <img src="./pic/ss1.jpg" alt="bicubic-shaders-be">
+    <img src="./pic/ss2.jpg" alt="bicubic-shaders-be">
+    <img src="./pic/ss3.jpg" alt="bicubic-shaders-be">
+    <img src="./pic/ss4.jpg" alt="bicubic-shaders-be">
+    <img src="./pic/ss5.jpg" alt="bicubic-shaders-be">
+    <img src="./pic/ss6.jpg" alt="bicubic-shaders-be">
+    <img src="./pic/ss7.jpg" alt="bicubic-shaders-be">
+    <br>
+    <br>
+    <header id="he2">Changelog</header>
+    <p>
+      New this shader support MCBE with Renderdragon engine<br>
+      New Tonemap<br>
+      Improve Clouds<br>
+      Improve Sky<br>
+      Improve water reflection<br>
+      More Vibrant color<br>
+      Change Underwater Fog<br>
+      Added foggy effect<br>
+      Added Minecraft vanilla AO<br>
+      Remove Sun reflection on water<br>
+      Little optimizations<br>
+    </p>
+    <br>
+    <br>
     <!-- horadunit -->
     <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-8231611512488101" data-ad-slot="4141086993" data-ad-format="auto" data-full-width-responsive="true"></ins>
-    <script>
-      (adsbygoogle = window.adsbygoogle || []).push({});
-    </script>
-    <br><br>
-    <p id="he2">Note</p>
-    <div id="box">
-      <ul id="clh">
-				<li>Don't reupload the file. If you want to share it, just use this github page link !</li>
-				<li>Don't make this github page or download link as a shortlink or something like that, with some payment method activated on that !</li>
-			</ul>
-    </div>
-    <br><br>
-    <p id="he2">Download</p>
-    <div id="box">
-      <p>Latest Update: <span id="uinfo"></span> Version 3.1</p><br>
-      <p>Resourcepack</p>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    <br>
+    <br>
+    <header id="he2">Warning</header>
+    <p id="clh">Don't re-upload the file !<br>If you want to share it, just use this page link !<br>Don't make this page or download link as a shortlink or something like that and get some payment method on that !</p>
+    <br>
+    <br>
+    <header id="he2">Download</header>
+    <p>Latest Version 3.1
+      <br>
+      <br>
+      Resource Pack
+      <br>
+      BSBE RD Material Support
+      <br>
       <a id="ah" href="https://github.com/bambosan/Bicubic-Shaders-BE/releases/download/3.1/BSBE-RD-Material-Support.mcpack"><i class="fas fa-download"></i> Download</a>
-      <br><br>
-      <p>Renderdragon Materials:</p>
-      <p>Android</p>
+      <br>
+      <br>
+      Renderdragon Materials:
+      <br>
+      Android
+      <br>
       <a id="ah" href="https://github.com/bambosan/Bicubic-Shaders-BE/releases/download/3.1/BSBE-RD-Materials-Android.zip"><i class="fas fa-download"></i> Download</a>
-      <br><br>
-      <p>iOS</p>
+      <br>
+      <br>
+      iOS
+      <br>
       <a id="ah" href="https://github.com/bambosan/Bicubic-Shaders-BE/releases/download/3.1/BSBE-RD-Materials-iOS.zip"><i class="fas fa-download"></i> Download</a>
-      <br><br>
-      <p>Windows</p>
+      <br>
+      <br>
+      Windows
+      <br>
       <a id="ah" href="https://github.com/bambosan/Bicubic-Shaders-BE/releases/download/3.1/BSBE-RD-Materials-Windows.zip"><i class="fas fa-download"></i> Download</a>
-      <br><br>
+      <br>
+      <br>
       <a href="https://youtu.be/XbtFd6DrDM8" target="_blank"><u>How To Install on Android</u></a><br>
       <a href="https://youtu.be/fVxb543A8LE?t=80" target="_blank"><u>How To Install on iOS</u></a><br>
       <a href="https://youtu.be/qe7m0YRGHs8?t=280" target="_blank"><u>How To Install on Windows</u></a>
-    </div>
-    <br><br>
-    <p id="he2">Credits</p>
-    <div id="box">
-      <p id="clh">Thanks to<br>
-        <a href="https://github.com/ddf8196" target="_blank"> <u>ddf8196</u></a> for making awesome tools that make this thing possible<br>
-      </p>
-    </div>
-    <br><br>
-    <p id="he2">See My Activity on</p>
-    <div id="box">
+    </p>
+    <br>
+    <br>
+    <br>
+    <!-- horadunit -->
+    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-8231611512488101" data-ad-slot="4141086993" data-ad-format="auto" data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    <br>
+    <br>
+    <header id="he2">Credits</header>
+    <p>Thanks to<br><a href="https://github.com/ddf8196" target="_blank"> <u>ddf8196</u></a><br>for making awesome tools that make this thing possible<br>
+    </p>
+    <br>
+    <br>
+    <header id="he2">See My Activity on</header>
+    <p id="clh">
       <a href="https://github.com/bambosan" target="_blank"><i class="fab fa-github"></i> Github</a>
       <br>
       <a href="https://twitter.com/bamb0san" target="_blank"><i class="fab fa-twitter"></i> Twitter</a>
       <br>
       <a href="https://www.youtube.com/channel/UCVhl5xGvRnlbIrb6K3CmCHA" target="_blank"><i class="fab fa-youtube" target="_blank"></i> YouTube</a>
-    </div>
-    <footer>
-      bambosan 2022
-    </footer>
-    <br><br>
-    <!-- horadunit -->
-    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-8231611512488101" data-ad-slot="4141086993" data-ad-format="auto" data-full-width-responsive="true"></ins>
-    <script>
-      (adsbygoogle = window.adsbygoogle || []).push({});
-    </script>
+    </p>
+    <footer>bambosan 2022</footer>
   </div>
-  <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
-	<script>
-	  var swiper = new Swiper(".mySwiper", {
-      spaceBetween: 5,
-      centeredSlides: true,
-			loop: true,
-			autoplay: {
-				delay: 2000,
-				disableOnInteraction: true
-			},
-			navigation: {
-				nextEl: ".swiper-button-next",
-				prevEl: ".swiper-button-prev"
-			},
-      breakpoints: {
-        700: {
-          spaceBetween: 20,
-          slidesPerView: 2
-        }
-      }
-    });
-	</script>
 </body>
 </html>
