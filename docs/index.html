@@ -29,6 +29,7 @@
         background: linear-gradient(#282c34b9, #282c34b9), url("./pic/back.jpg") no-repeat;
         background-size: cover
       }
+      #ic:hover{ fill: red }
       .col-8-md{ padding: 20px 0 }
       .swiper-slide img{
         display: block;
@@ -196,12 +197,6 @@
         <a href="https://www.youtube.com/channel/UCVhl5xGvRnlbIrb6K3CmCHA" target="_blank">
           <svg id="ic" fill="var(--color-onedark1)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32px" height="32px"><path d="M 15 4 C 10.814 4 5.3808594 5.0488281 5.3808594 5.0488281 L 5.3671875 5.0644531 C 3.4606632 5.3693645 2 7.0076245 2 9 L 2 15 L 2 15.001953 L 2 21 L 2 21.001953 A 4 4 0 0 0 5.3769531 24.945312 L 5.3808594 24.951172 C 5.3808594 24.951172 10.814 26.001953 15 26.001953 C 19.186 26.001953 24.619141 24.951172 24.619141 24.951172 L 24.621094 24.949219 A 4 4 0 0 0 28 21.001953 L 28 21 L 28 15.001953 L 28 15 L 28 9 A 4 4 0 0 0 24.623047 5.0546875 L 24.619141 5.0488281 C 24.619141 5.0488281 19.186 4 15 4 z M 12 10.398438 L 20 15 L 12 19.601562 L 12 10.398438 z"/></svg>
         </a>
-        <script>
-          document.querySelectorAll('svg#ic').forEach((e, i) => {
-            e.addEventListener('mouseover', () => { document.querySelectorAll('svg#ic').item(i).style.fill = 'red' })
-            e.addEventListener('mouseout', () => { document.querySelectorAll('svg#ic').item(i).style.fill = 'var(--color-onedark1)' })
-          })
-        </script>
       </div>
     </div>
   </body>
