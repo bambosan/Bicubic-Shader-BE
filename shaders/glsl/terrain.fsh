@@ -1,13 +1,13 @@
-#version 310 es
+#version 300 es
 precision highp float;
 
 uniform vec4 FOG_COLOR;
 uniform vec2 FOG_CONTROL;
 uniform float TOTAL_REAL_WORLD_TIME;
 
-layout(binding = 0) uniform sampler2D TEXTURE_0;
-layout(binding = 1) uniform sampler2D TEXTURE_1;
-layout(binding = 2) uniform sampler2D TEXTURE_2;
+uniform sampler2D TEXTURE_0;
+uniform sampler2D TEXTURE_1;
+uniform sampler2D TEXTURE_2;
 
 #ifndef BYPASS_PIXEL_SHADER
     const float pi = 3.1415926;
