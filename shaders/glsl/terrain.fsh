@@ -1,4 +1,5 @@
 #version 300 es
+#pragma optimize(on)
 precision highp float;
 
 uniform vec4 FOG_COLOR;
