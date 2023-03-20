@@ -1,0 +1,7 @@
+{
+  "cubemap": {
+    "vertexShader": "shaders/cubemap.vsh",
+    "vrGeometryShader": "shaders/uv.geometry",
+    "fragmentShader": "shaders/cubemap.fsh"
+  }
+}
