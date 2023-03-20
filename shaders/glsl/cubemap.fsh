@@ -27,6 +27,10 @@ float luminance(vec3 color){
     return dot(color, vec3(0.2125, 0.7154, 0.0721));
 }
 
+vec3 linearColor(vec3 color){
+    return pow(color, vec3(2.2, 2.2, 2.2));
+}
+
 vec3 saturation(vec3 color, float sat){
     float gray = luminance(color);
     return mix(vec3(gray, gray, gray), color, sat);
@@ -60,8 +64,7 @@ vec3 calcSky(vec3 pos, vec3 lightPos, float offset){
     float mie = exp(-distance(pos, lightPos));
         result *= (1.0 + mie) * 0.7;
         result += saturation(horizonColor * 3.0, 2.5) * (mie * mie * mie) * clamp(lightPos.y + 0.3, 0.0, 1.0) * exp(-zenith * 3.5);
-        result = pow(result, vec3(2.2, 2.2, 2.2));
-    return result;
+    return linearColor(result);
 }
 
 float hash(vec2 coord){
@@ -138,7 +141,7 @@ void main(){
         color += normalize(sunColor) * smoothstep(0.999, 1.0, dot(pos, -lightPos)) * 10.0 * pow(clamp(pos.y, 0.0, 1.0), 0.8);
 
         color = calcCloud(color, zenithColor, sunColor, pos, lightPos, TOTAL_REAL_WORLD_TIME);
-        color = mix(color, pow(FOG_COLOR.rgb, vec3(2.2, 2.2, 2.2)), max(step(FOG_CONTROL.x, 0.0), rain));
+        color = mix(color, linearColor(FOG_COLOR.rgb), max(step(FOG_CONTROL.x, 0.0), rain));
 
         color = color * (Bayer64(gl_FragCoord.xy) * 0.5 + 0.5);
         color = unchartedmod(color * 6.0);
