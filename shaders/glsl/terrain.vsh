@@ -69,7 +69,7 @@ void main(){
     #endif
 
     #if !defined(SEASONS) && !defined(ALPHA_TEST)
-        if(COLOR.a > 0.5 && COLOR.a < 0.6){
+        if(COLOR.a > 0.6 && COLOR.a < 0.7){
             worldPos.y += sin(TOTAL_REAL_WORLD_TIME * 4.0 + ajp.x + ajp.z + ajp.y) * 0.06 * fract(POSITION.y);
         }
     #endif

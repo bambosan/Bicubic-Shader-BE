@@ -253,12 +253,6 @@ void main(){
         0.0, rain),
         1.0, smoothstep(lightVis * uv1.y, 1.0, uv1.x));
 
-    #ifndef ALPHA_TEST
-        if(albedo.a > 0.5 && albedo.a < 0.6){
-            ambLight += albedo.rgb * 2.0 * (1.0 - shadowMap);
-        }
-    #endif
-        
         ambLight += (dirColor * shadowMap);
         albedo.rgb = albedo.rgb * ambLight;
 
