@@ -32,48 +32,37 @@ uniform sampler2D TEXTURE_2;
         return clamp(((349.305545 * fogColorG - 159.858192) * fogColorG + 30.557216) * fogColorG - 1.628452, -1.0, 1.0);
     }
 
-    float luminance(vec3 color){
+    float getLum(vec3 color){
         return dot(color, vec3(0.2125, 0.7154, 0.0721));
     }
 
-    vec3 linearColor(vec3 color){
+    vec3 linColor(vec3 color){
         return pow(color, vec3(2.2, 2.2, 2.2));
     }
 
     vec3 saturation(vec3 color, float sat){
-        float gray = luminance(color);
+        float gray = getLum(color);
         return mix(vec3(gray, gray, gray), color, sat);
     }
 
-    vec3 uncharted2Tonemap(vec3 x){
-        float A = 0.25;
-        float B = 0.29;
-        float C = 0.10;
-        float D = 0.2;
-        float E = 0.03;
-        float F = 0.35;
-        return ((x * (A * x + C * B) + D * E) / (x * (A * x + B) + D * F)) - E / F;
+    vec3 jodieTonemap(vec3 c){
+        vec3 tc = c / (c + 1.0);
+        return mix(c / (getLum(c) + 1.0), tc, tc);
     }
 
-    vec3 unchartedmod(vec3 color){
-        const float W = 11.2;
-        vec3 curr = uncharted2Tonemap(color);
-        vec3 whiteScale = 1.0 / uncharted2Tonemap(vec3(W));
-        return curr * whiteScale;
+    vec3 sunColor(float sunAngle){
+        sunAngle = clamp(sin(sunAngle) + 0.1, 0.0, 1.0);
+        return vec3((1.0 - sunAngle) + sunAngle, sunAngle, sunAngle * sunAngle) * exp2(log2(sunAngle) * 0.6);
     }
 
-    vec3 calcSky(vec3 pos, vec3 lightPos, float offset){
-        float lightAngle = clamp(lightPos.y + offset, 0.0, 1.0);
-        vec3 horizonColor = mix(vec3(1.0, 0.2, 0.0), vec3(1.0, 1.0, 1.0), lightAngle) * lightAngle;
-        vec3 zenithColor = mix(vec3(0.0, 0.3, 0.0), vec3(0.0, 0.2, 1.0), lightAngle) * lightAngle;
+    vec3 moonColor(float sunAngle){
+        sunAngle = clamp(-sin(sunAngle), 0.0, 1.0);
+        return vec3((1.0 - sunAngle) * 0.2 + sunAngle, sunAngle, sunAngle) * exp2(log2(sunAngle) * 0.6) * 0.05;
+    }
 
-        float zenith = clamp(pos.y, 0.0, 1.0);
-        vec3 result = mix(zenithColor, horizonColor, exp(-zenith));
-
-        float mie = exp(-distance(pos, lightPos));
-            result *= (1.0 + mie) * 0.7;
-            result += saturation(horizonColor * 3.0, 2.5) * (mie * mie * mie) * clamp(lightPos.y + 0.3, 0.0, 1.0) * exp(-zenith * 3.5);
-        return linearColor(result);
+    vec3 zenithColor(float sunAngle){
+        sunAngle = clamp(sin(sunAngle), 0.0, 1.0);
+        return vec3(0.0, sunAngle * 0.13 + 0.003, sunAngle * 0.5 + 0.01);
     }
 
     float hash(vec2 coord){
@@ -91,54 +80,49 @@ uniform sampler2D TEXTURE_2;
         return result;
     }
 
-    float fbm(vec2 pos, float density, float time){
+    float fbm(vec2 pos, float pdensity){
         float sum = 0.0;
-        float lacunarity = 1.0;
-        pos = (pos * 6.0) + (time * 0.01);
-
+        float density = 1.0;
+        pos += TOTAL_REAL_WORLD_TIME * 0.005;
         for(int i = 0; i < 3; i++){
-            sum += voronoi2d(pos) * density / lacunarity;
-            lacunarity *= 3.0;
-            pos = (pos * 3.0) + (time * 0.1);
+            sum += voronoi2d(pos) * density * pdensity;
+            density *= 0.5;
+            pos *= 3.0;
+            pos += TOTAL_REAL_WORLD_TIME * 0.05;
         }
         return smoothstep(1.0, 0.0, sum);
     }
 
-    float mieCloud(vec3 pos, vec3 lightPos, float offset, float strength){
-        return (1.0 + (exp(-distance(pos, lightPos) * 2.0) * exp(-clamp(pos.y, 0.0, 1.0) * 3.0) * strength) * clamp(lightPos.y + offset, 0.0, 1.0));
-    }
+    vec3 renderCloud(vec3 backg, vec3 pos, vec3 sunPos, float sunAngle){
+        vec3 cloudColor = sunColor(sunAngle) + moonColor(sunAngle);
+            cloudColor = saturation(cloudColor, 0.6);
+            cloudColor *= 1.5;
+        vec3 ambColor = zenithColor(sunAngle);
 
-    vec3 calcCloud(vec3 background, vec3 ambientColor, vec3 cloudColor, vec3 pos, vec3 lightPos, float time){
-
-        cloudColor *= mieCloud(pos, lightPos, 0.3, 40.0);
-        cloudColor *= mieCloud(pos, -lightPos, 0.1, 50.0);
-
-        vec2 cloudPos = (pos.xz / pos.y) * 0.1;
-        float density = 2.0;
+        vec2 cloudPos = (pos.xz / pos.y) * 0.6;
+        float density = 2.1;
 
         for(int i = 0; i < 10; i++){
-            float cloudMap = fbm(cloudPos, density, time);
-            cloudColor *= (ambientColor * 0.1 + (0.95 - clamp(lightPos.y, 0.0, 1.0) * 0.15));
-            background = mix(background, cloudColor, cloudMap * smoothstep(0.1, 0.4, pos.y));
-
-            density -= 0.1;
+            float cloudMap = fbm(cloudPos, density);
+            cloudColor *= (ambColor * 0.1 + 0.88 + exp(-distance(pos, sunPos) * 3.0) * 0.1);
+            backg = mix(backg, cloudColor, cloudMap * smoothstep(0.0, 0.3, pos.y));
+            density -= 0.13;
             cloudPos -= cloudPos * 0.04;
         }
-        return background;
+        return backg;
     }
 
-    // https://github.com/robobo1221/robobo1221Shaders/tree/master/shaders/lib/fragment
+    // https://github.com/robobo1221/robobo1221Shaders/
     float calcwave(vec2 pos, float waveLength, float magnitude, vec2 waveDir, float waveAmp, float waveStrength){
         float k = tau / waveLength;
         float x = sqrt(19.6 * k) * magnitude - (k * dot(waveDir, pos));
         return waveAmp * pow(sin(x) * 0.5 + 0.5, waveStrength);
     }
 
-    #define rot2d(rain) mat2(cos(rain), -sin(rain), sin(rain), cos(rain))
-    float trochoidalwave(vec2 pos, float time){
+    float tWave(vec2 pos){
         float waveLength = 10.0;
-        float magnitude = time * 0.3;
-        float waveAmp = 0.5;
+        float magnitude = TOTAL_REAL_WORLD_TIME * 0.3;
+        float waveAmp = 0.3;
         float waveStrength = 0.6;
         vec2 waveDir = vec2(1.0, 0.5);
         float sum = 0.0;
@@ -147,31 +131,30 @@ uniform sampler2D TEXTURE_2;
             waveLength *= 0.7;
             waveAmp *= 0.62;
             waveStrength *= 1.03;
-            waveDir *= rot2d(0.5);
+            waveDir *= mat2(cos(0.5), -sin(0.5), sin(0.5), cos(0.5));
             magnitude *= 1.1;
         }
         return sum;
     }
-    #undef rot2d
 
-    vec3 calcWN(vec2 pos, float time){
-        float w = trochoidalwave(pos, time);
-        float wx = trochoidalwave(vec2(pos.x - 0.2, pos.y), time);
-        float wy = trochoidalwave(vec2(pos.x, pos.y - 0.2), time);
+    vec3 calcWN(vec2 pos){
+        float w = tWave(pos);
+        float wx = tWave(vec2(pos.x - 0.2, pos.y));
+        float wy = tWave(vec2(pos.x, pos.y - 0.2));
         vec3 waterNormal = normalize(vec3(w - wx, w - wy, 1.0)) * 0.5 + 0.5;
         return waterNormal * 2.0 - 1.0;
     }
 
-    float fschlick(float f0, float ndv){
-        return f0 + (1.0 - f0) * pow(1.0 - ndv, 5.0);
+    float fresnelSchlick(float f0, float NdV){
+        return f0 + (1.0 - f0) * pow(1.0 - NdV, 5.0);
     }
 
-    float ggx(float ndl, float ndv, float ndh, float roughness){
-        float rs = pow(roughness, 4.0);
-        float d = (ndh * rs - ndh) * ndh + 1.0;
+    float specularGGX(float ndl, float NdV, float NdH, float rough){
+        float rs = pow(rough, 4.0);
+        float d = (NdH * rs - NdH) * NdH + 1.0;
         float nd = rs / (pi * d * d);
-        float k = (roughness * roughness) * 0.5;
-        float v = ndv * (1.0 - k) + k;
+        float k = (rough * rough) * 0.5;
+        float v = NdV * (1.0 - k) + k;
         float l = ndl * (1.0 - k) + k;
         return max(nd * (0.25 / (v * l)), 0.0);
     }
@@ -195,33 +178,28 @@ void main(){
     return;
 #else
     vec4 albedo = texture(TEXTURE_0, uv0);
-
     #ifdef SEASONS_FAR
         albedo.a = 1.0;
     #endif
-
     #ifdef ALPHA_TEST
         if(albedo.a < 0.05) discard;
     #endif
-
     vec4 inColor = color;
-
     #if defined(BLEND)
         albedo.a *= inColor.a;
     #endif
-
     #ifndef SEASONS
         #if !defined(USE_ALPHA_TEST) && !defined(BLEND)
             albedo.a = inColor.a;
         #endif
-        albedo.rgb *= (inColor.r == inColor.g && inColor.g == inColor.b) ? sqrt(inColor.rgb) : inColor.rgb / (luminance(inColor.rgb) * 1.5);
+        albedo.rgb *= inColor.rgb;
     #else
         albedo.rgb *= mix(vec3(1.0, 1.0, 1.0), texture(TEXTURE_2, inColor.xy).rgb * 2.0, inColor.b);
         albedo.rgb *= inColor.aaa;
         albedo.a = 1.0;
     #endif
 
-        albedo.rgb = linearColor(albedo.rgb);
+        albedo.rgb = linColor(albedo.rgb);
 
     float rain = smoothstep(0.6, 0.3, FOG_CONTROL.x);
     float lightVis = texture(TEXTURE_1, vec2(0.0, 1.0)).r;
@@ -230,82 +208,62 @@ void main(){
 
     vec3 fnormal = normalize(cross(dFdx(position), dFdy(position)));
     float sunAngle = fogTime(FOG_COLOR.g);
-    vec3 lightPos = normalize(vec3(cos(sunAngle), sin(sunAngle), 0.0));
-    vec3 tlightPos = lightPos.y > 0.0 ? lightPos : -lightPos;
-    
-    vec3 zenithColor = calcSky(vec3(0.0, 2.0, 0.0), lightPos, 0.2);
-        zenithColor += saturation(calcSky(vec3(0.0, 2.0, 0.0), -lightPos, 0.2), 0.0) * 0.1;
-        zenithColor = mix(zenithColor, linearColor(FOG_COLOR.rgb), rain);
+    vec3 sunPos = normalize(vec3(cos(sunAngle), sin(sunAngle), 0.0));
+    vec3 lightPos = sunPos.y > 0.0 ? sunPos : -sunPos;
+    vec3 ambLight = texture(TEXTURE_1, vec2(0.0, uv1.y)).rgb * 0.2;
+        ambLight += float(textureLod(TEXTURE_0, uv0, 0.0).a > 0.91 && textureLod(TEXTURE_0, uv0, 0.0).a < 0.93) * 3.0;
+        ambLight += vec3(1.0, 0.5, 0.2) * (blockLight + pow(blockLight, 5.0));
 
-    vec3 sunColor = calcSky(vec3(0.0, 0.0, 0.0), lightPos, 0.3);
-        sunColor += saturation(calcSky(vec3(0.0, 0.0, 0.0), -lightPos, 0.3), 0.0) * 0.005;
-        sunColor = mix(sunColor, linearColor(FOG_COLOR.rgb), rain);
-
-    vec3 dirColor = calcSky(vec3(0.0, 0.0, 0.0), lightPos, 0.2) * vec3(1.0, 0.8, 0.6);
-        dirColor += saturation(calcSky(vec3(0.0, 0.0, 0.0), -lightPos, 0.2), 0.0) * 0.005;
-        dirColor = mix(dirColor, linearColor(FOG_COLOR.rgb), rain);
-
-    vec3 ambLight = texture(TEXTURE_1, vec2(0.0, uv1.y)).rgb * 0.15;
-        ambLight += (vec3(1.0, 0.5, 0.2) * (blockLight + pow(blockLight, 5.0)));
-
-    float shadowMap = mix(mix(mix(
-        clamp(dot(tlightPos, fnormal), 0.0, 1.0) * (2.0 - clamp(tlightPos.y, 0.0, 1.0)), 0.0, indoor),
-        0.0, rain),
-        1.0, smoothstep(lightVis * uv1.y, 1.0, uv1.x));
-
-        ambLight += (dirColor * shadowMap);
-        albedo.rgb = albedo.rgb * ambLight;
+    float shadowMap = mix(mix(mix(clamp(dot(lightPos, fnormal), 0.0, 1.0) * (2.0 - clamp(lightPos.y, 0.0, 1.0)), 0.0, indoor), 0.0, rain), 1.0, smoothstep(lightVis * uv1.y, 1.0, uv1.x));
+        ambLight += mix(sunColor(sunAngle) * vec3(1.5, 1.3, 1.1), linColor(FOG_COLOR.rgb), rain) * shadowMap;
+        albedo.rgb *= ambLight;
 
     bool isWater = false;
     #if !defined(SEASONS) && !defined(ALPHA_TEST)
-        isWater = inColor.a > 0.6 && inColor.a < 0.7;
+        isWater = inColor.a > 0.5 && inColor.a < 0.7;
     #endif
 
-    mat3 fakeTBN = mat3(abs(fnormal.y) + fnormal.z, 0.0, fnormal.x, 0.0, 0.0, fnormal.y, -fnormal.x, fnormal.y, fnormal.z);
-    vec3 waterNormal = calcWN(position.xz, TOTAL_REAL_WORLD_TIME);
-        waterNormal = normalize(waterNormal * fakeTBN);
+    mat3 TBN = mat3(abs(fnormal.y) + fnormal.z, 0.0, fnormal.x, 0.0, 0.0, fnormal.y, -fnormal.x, fnormal.y, fnormal.z);
+    vec3 waterNormal = calcWN(position.xz);
+        waterNormal = normalize(waterNormal * TBN);
 
     if(isWater){
-        vec3 reflectedPos = reflect(normalize(worldpos), waterNormal);
+        vec3 refPos = reflect(normalize(worldpos), waterNormal);
         vec3 viewDir = normalize(-worldpos);
-        vec3 halfDir = normalize(viewDir + tlightPos);
+        vec3 halfDir = normalize(viewDir + lightPos);
 
-        float ndh = clamp(dot(waterNormal, halfDir), 0.0, 1.0);
-        float ndv = clamp(dot(waterNormal, viewDir), 0.0, 1.0);
+        float NdH = clamp(dot(waterNormal, halfDir), 0.0, 1.0);
+        float NdV = clamp(dot(waterNormal, viewDir), 0.0, 1.0);
+        float fresnel = fresnelSchlick(0.06, NdV) * smoothstep(0.7, 1.0, uv1.y);
 
-        float fresnel = fschlick(0.05, ndv) * smoothstep(0.5, 1.0, uv1.y);
+        vec3 reflection = mix(zenithColor(sunAngle), saturation(sunColor(sunAngle) + moonColor(sunAngle), 0.5), exp(-clamp(refPos.y, 0.0, 1.0) * 4.0));
+            reflection += sunColor(sunAngle) * exp(-distance(refPos, sunPos) * 2.0) * exp(-clamp(refPos.y, 0.0, 1.0) * 2.0) * 5.0;
+            reflection += moonColor(sunAngle) * exp(-distance(refPos, -sunPos) * 2.0) * exp(-clamp(refPos.y, 0.0, 1.0) * 2.0) * 5.0;
+            reflection = renderCloud(reflection, refPos, lightPos, sunAngle);
+            reflection = mix(reflection, linColor(FOG_COLOR.rgb), max(step(FOG_CONTROL.x, 0.0), rain));
 
-        vec3 reflection = calcSky(reflectedPos, lightPos, 0.4);
-            reflection += saturation(calcSky(reflectedPos, -lightPos, 0.4), 0.0) * 0.05;
-
-            reflection += normalize(sunColor) * smoothstep(0.999, 1.0, dot(reflectedPos, lightPos)) * 20.0 * pow(clamp(reflectedPos.y, 0.0, 1.0), 0.8);
-            reflection += normalize(sunColor) * smoothstep(0.999, 1.0, dot(reflectedPos, -lightPos)) * 10.0 * pow(clamp(reflectedPos.y, 0.0, 1.0), 0.8);
-    
-            reflection = calcCloud(reflection, zenithColor, sunColor, reflectedPos, lightPos, TOTAL_REAL_WORLD_TIME);
-
-            reflection = mix(reflection, linearColor(FOG_COLOR.rgb), max(step(FOG_CONTROL.x, 0.0), rain));
-
-        albedo.rgb = vec3(0.0, 0.0, 0.0);
+        albedo = vec4(0.0, 0.0, 0.0, 0.8);
         albedo = mix(albedo, vec4(reflection, 1.0), fresnel);
-        albedo += normalize(vec4(sunColor, 1.0)) * ggx(clamp(dot(tlightPos, waterNormal), 0.0, 1.0), ndv, ndh, 0.05) * uv1.y;
-
-        vec3 lBlockDir = normalize(cross(dFdx(position) * dFdy(uv1.x) - dFdy(position) * dFdx(uv1.x), fnormal));
-            lBlockDir = normalize(lBlockDir + fnormal * 0.01);
-        albedo += vec4(1.0, 0.5, 0.2, 1.0) * clamp((dot(lBlockDir, waterNormal) * dot(lBlockDir, waterNormal)) * 180.0 * (blockLight * blockLight), 0.0, 1.0);
+        albedo += vec4(sunColor(sunAngle) + moonColor(sunAngle), 1.0) * specularGGX(clamp(dot(lightPos, waterNormal), 0.0, 1.0), NdV, NdH, 0.05) * uv1.y;
     }
 
-    vec3 fogColor = calcSky(normalize(worldpos), lightPos, 0.4);
-        fogColor += saturation(calcSky(normalize(worldpos), -lightPos, 0.4), 0.0) * 0.05;
-        fogColor = mix(fogColor, linearColor(FOG_COLOR.rgb), max(step(FOG_CONTROL.x, 0.0), rain));
+    vec3 npos = normalize(worldpos);
+    vec3 fogColor = mix(zenithColor(sunAngle), saturation(sunColor(sunAngle) + moonColor(sunAngle), 0.5), exp(-clamp(npos.y, 0.0, 1.0) * 4.0));
+        fogColor += sunColor(sunAngle) * exp(-distance(npos, sunPos) * 2.0) * exp(-clamp(npos.y, 0.0, 1.0) * 2.0) * 5.0;
+        fogColor += moonColor(sunAngle) * exp(-distance(npos, -sunPos) * 2.0) * exp(-clamp(npos.y, 0.0, 1.0) * 2.0) * 5.0;
+        fogColor = mix(fogColor, linColor(FOG_COLOR.rgb), max(step(FOG_CONTROL.x, 0.0), rain));
 
     bool isUnderwater = FOG_CONTROL.x <= 0.0;
     if(isUnderwater){
         if(!isWater){
-            vec3 causticDir = normalize(vec3(-1.0, -1.0, 0.05) * fakeTBN);
-            albedo.rgb = albedo.rgb * vec3(0.3, 0.4, 0.5) + (albedo.rgb * clamp(dot(causticDir, waterNormal), 0.0, 0.7) * 20.0 * uv1.y);
+            vec3 causticDir = normalize(vec3(-1.0, -1.0, 0.1) * TBN);
+            vec3 uwAmb = FOG_COLOR.rgb;
+                uwAmb += pow(uv1.x, 3.0);
+                uwAmb += albedo.rgb * clamp(dot(causticDir, waterNormal), 0.0, 1.0) * 500.0 * uv1.y;
+            albedo.rgb *= uwAmb;
         }
     } else {
-        albedo.rgb = mix(albedo.rgb, fogColor, clamp(length(-worldpos.xyz) * 0.01, 0.0, 1.0) * 0.05);
+        albedo.rgb = mix(albedo.rgb, zenithColor(sunAngle) * 2.0, clamp(length(-worldpos.xyz) * 0.01, 0.0, 1.0) * 0.05);
     }
 
     #ifdef FOG
@@ -313,9 +271,9 @@ void main(){
     #endif
 
         albedo.rgb = albedo.rgb * (Bayer64(gl_FragCoord.xy) * 0.5 + 0.5);
-        albedo.rgb = unchartedmod(albedo.rgb * 6.0);
+        albedo.rgb = jodieTonemap(albedo.rgb * 5.0);
         albedo.rgb = saturation(albedo.rgb, 1.1);
-        albedo.rgb = pow(albedo.rgb, vec3(1.0 / 2.2, 1.0 / 2.2, 1.0 / 2.2));
+        albedo.rgb = pow(albedo.rgb, vec3(1.0 / 2.2));
 
     fragcolor = albedo;
 #endif

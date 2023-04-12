@@ -24,48 +24,37 @@ float fogTime(float fogColorG){
     return clamp(((349.305545 * fogColorG - 159.858192) * fogColorG + 30.557216) * fogColorG - 1.628452, -1.0, 1.0);
 }
 
-float luminance(vec3 color){
+float getLum(vec3 color){
     return dot(color, vec3(0.2125, 0.7154, 0.0721));
 }
 
-vec3 linearColor(vec3 color){
+vec3 linColor(vec3 color){
     return pow(color, vec3(2.2, 2.2, 2.2));
 }
 
 vec3 saturation(vec3 color, float sat){
-    float gray = luminance(color);
+    float gray = getLum(color);
     return mix(vec3(gray, gray, gray), color, sat);
 }
 
-vec3 uncharted2Tonemap(vec3 x){
-    float A = 0.25;
-    float B = 0.29;
-    float C = 0.10;
-    float D = 0.2;
-    float E = 0.03;
-    float F = 0.35;
-    return ((x * (A * x + C * B) + D * E) / (x * (A * x + B) + D * F)) - E / F;
+vec3 jodieTonemap(vec3 c){
+    vec3 tc = c / (c + 1.0);
+    return mix(c / (getLum(c) + 1.0), tc, tc);
 }
 
-vec3 unchartedmod(vec3 color){
-    const float W = 11.2;
-    vec3 curr = uncharted2Tonemap(color);
-    vec3 whiteScale = 1.0 / uncharted2Tonemap(vec3(W));
-    return curr * whiteScale;
+vec3 sunColor(float sunAngle){
+    sunAngle = clamp(sin(sunAngle) + 0.1, 0.0, 1.0);
+    return vec3((1.0 - sunAngle) + sunAngle, sunAngle, sunAngle * sunAngle) * exp2(log2(sunAngle) * 0.6);
 }
 
-vec3 calcSky(vec3 pos, vec3 lightPos, float offset){
-    float lightAngle = clamp(lightPos.y + offset, 0.0, 1.0);
-    vec3 horizonColor = mix(vec3(1.0, 0.2, 0.0), vec3(1.0, 1.0, 1.0), lightAngle) * lightAngle;
-    vec3 zenithColor = mix(vec3(0.0, 0.3, 0.0), vec3(0.0, 0.2, 1.0), lightAngle) * lightAngle;
+vec3 moonColor(float sunAngle){
+    sunAngle = clamp(-sin(sunAngle), 0.0, 1.0);
+    return vec3((1.0 - sunAngle) * 0.2 + sunAngle, sunAngle, sunAngle) * exp2(log2(sunAngle) * 0.6) * 0.05;
+}
 
-    float zenith = clamp(pos.y, 0.0, 1.0);
-    vec3 result = mix(zenithColor, horizonColor, exp(-zenith));
-
-    float mie = exp(-distance(pos, lightPos));
-        result *= (1.0 + mie) * 0.7;
-        result += saturation(horizonColor * 3.0, 2.5) * (mie * mie * mie) * clamp(lightPos.y + 0.3, 0.0, 1.0) * exp(-zenith * 3.5);
-    return linearColor(result);
+vec3 zenithColor(float sunAngle){
+    sunAngle = clamp(sin(sunAngle), 0.0, 1.0);
+    return vec3(0.0, sunAngle * 0.13 + 0.003, sunAngle * 0.5 + 0.01);
 }
 
 float hash(vec2 coord){
@@ -83,40 +72,37 @@ float voronoi2d(vec2 pos){
     return result;
 }
 
-float fbm(vec2 pos, float density, float time){
+float fbm(vec2 pos, float pdensity){
     float sum = 0.0;
-    float lacunarity = 1.0;
-    pos = (pos * 6.0) + (time * 0.01);
-
+    float density = 1.0;
+    pos += TOTAL_REAL_WORLD_TIME * 0.005;
     for(int i = 0; i < 3; i++){
-        sum += voronoi2d(pos) * density / lacunarity;
-        lacunarity *= 3.0;
-        pos = (pos * 3.0) + (time * 0.1);
+        sum += voronoi2d(pos) * density * pdensity;
+        density *= 0.5;
+        pos *= 3.0;
+        pos += TOTAL_REAL_WORLD_TIME * 0.05;
     }
     return smoothstep(1.0, 0.0, sum);
 }
 
-float mieCloud(vec3 pos, vec3 lightPos, float offset, float strength){
-    return (1.0 + (exp(-distance(pos, lightPos) * 2.0) * exp(-clamp(pos.y, 0.0, 1.0) * 3.0) * strength) * clamp(lightPos.y + offset, 0.0, 1.0));
-}
+vec3 renderCloud(vec3 backg, vec3 pos, vec3 sunPos, float sunAngle){
+    vec3 cloudColor = sunColor(sunAngle) + moonColor(sunAngle);
+        cloudColor = saturation(cloudColor, 0.6);
+        cloudColor *= 1.5;
+    vec3 ambColor = zenithColor(sunAngle);
 
-vec3 calcCloud(vec3 background, vec3 ambientColor, vec3 cloudColor, vec3 pos, vec3 lightPos, float time){
-
-    cloudColor *= mieCloud(pos, lightPos, 0.3, 40.0);
-    cloudColor *= mieCloud(pos, -lightPos, 0.1, 50.0);
-
-    vec2 cloudPos = (pos.xz / pos.y) * 0.1;
-    float density = 2.0;
+    vec2 cloudPos = (pos.xz / pos.y) * 0.6;
+        cloudPos -= cloudPos * Bayer64(gl_FragCoord.xy) * 0.05;
+    float density = 2.1;
 
     for(int i = 0; i < 10; i++){
-        float cloudMap = fbm(cloudPos, density, time);
-        cloudColor *= (ambientColor * 0.1 + (0.95 - clamp(lightPos.y, 0.0, 1.0) * 0.15));
-        background = mix(background, cloudColor, cloudMap * smoothstep(0.1, 0.4, pos.y));
-
-        density -= 0.1;
+        float cloudMap = fbm(cloudPos, density);
+        cloudColor *= (ambColor * 0.1 + 0.88 + exp(-distance(pos, sunPos) * 3.0) * 0.1);
+        backg = mix(backg, cloudColor, cloudMap * smoothstep(0.0, 0.3, pos.y));
+        density -= 0.13;
         cloudPos -= cloudPos * 0.04;
     }
-    return background;
+    return backg;
 }
 
 in vec3 position;
@@ -124,28 +110,22 @@ out vec4 fragcolor;
 
 void main(){    
     float sunAngle = fogTime(FOG_COLOR.g);
-    float rain = smoothstep(0.6, 0.3, FOG_CONTROL.x);
+    vec3 sunPos = normalize(vec3(cos(sunAngle), sin(sunAngle), 0.0));
+    vec3 pos = normalize(vec3(position.x, -position.y + 0.127, -position.z));
 
-    vec3 lightPos = normalize(vec3(cos(sunAngle), sin(sunAngle), 0.0));
-    vec3 pos = normalize(vec3(position.x, -position.y + 0.128, -position.z));
+    vec3 color = mix(zenithColor(sunAngle), saturation(sunColor(sunAngle) + moonColor(sunAngle), 0.5), exp(-clamp(pos.y, 0.0, 1.0) * 5.0));
 
-    vec3 zenithColor = calcSky(vec3(0.0, 2.0, 0.0), lightPos, 0.2);
-        zenithColor += saturation(calcSky(vec3(0.0, 2.0, 0.0), -lightPos, 0.2), 0.0) * 0.1;
+        color += sunColor(sunAngle) * exp(-distance(pos, sunPos) * 2.0) * exp(-clamp(pos.y, 0.0, 1.0) * 2.0) * 5.0;
+        color += moonColor(sunAngle) * exp(-distance(pos, -sunPos) * 2.0) * exp(-clamp(pos.y, 0.0, 1.0) * 2.0) * 5.0;
 
-    vec3 sunColor = calcSky(vec3(0.0, 0.0, 0.0), lightPos, 0.3);
-        sunColor += saturation(calcSky(vec3(0.0, 0.0, 0.0), -lightPos, 0.3), 0.0) * 0.005;
- 
-    vec3 color = calcSky(pos, lightPos, 0.4);
-        color += saturation(calcSky(pos, -lightPos, 0.4), 0.0) * 0.05;
+        color += sunColor(sunAngle) * smoothstep(0.999, 1.0, dot(pos, sunPos)) * 100.0 * pow(clamp(pos.y, 0.0, 1.0), 0.8);
+        color += moonColor(sunAngle) * smoothstep(0.999, 1.0, dot(pos, -sunPos)) * 100.0 * pow(clamp(pos.y, 0.0, 1.0), 0.8);
+        color = renderCloud(color, pos, sunPos, sunAngle);
 
-        color += normalize(sunColor) * smoothstep(0.999, 1.0, dot(pos, lightPos)) * 20.0 * pow(clamp(pos.y, 0.0, 1.0), 0.8);
-        color += normalize(sunColor) * smoothstep(0.999, 1.0, dot(pos, -lightPos)) * 10.0 * pow(clamp(pos.y, 0.0, 1.0), 0.8);
-
-        color = calcCloud(color, zenithColor, sunColor, pos, lightPos, TOTAL_REAL_WORLD_TIME);
-        color = mix(color, linearColor(FOG_COLOR.rgb), max(step(FOG_CONTROL.x, 0.0), rain));
+        color = mix(color, linColor(FOG_COLOR.rgb), max(step(FOG_CONTROL.x, 0.0), smoothstep(0.6, 0.3, FOG_CONTROL.x)));
 
         color = color * (Bayer64(gl_FragCoord.xy) * 0.5 + 0.5);
-        color = unchartedmod(color * 6.0);
+        color = jodieTonemap(color * 5.0);
         color = saturation(color, 1.1);
         color = pow(color, vec3(1.0 / 2.2, 1.0 / 2.2, 1.0 / 2.2));
 

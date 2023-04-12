@@ -62,21 +62,16 @@ void main(){
     vec3 ajp = vec3(POSITION.x == 16.0 ? 0.0 : POSITION.x, abs(POSITION.y - 8.0), POSITION.z == 16.0 ? 0.0 : POSITION.z);
 
     #ifdef ALPHA_TEST
-        vec3 frp = fract(POSITION.xyz);
-        if((COLOR.r != COLOR.g && COLOR.g != COLOR.b && frp.y != 0.015625) || (frp.y == 0.9375 && (frp.x == 0.0 || frp.z == 0.0))){
-            worldPos.xyz += calcmove(ajp, 0.0040, 0.0064, 0.0043, 0.0035, 0.0037, 0.0041, vec3(1.0, 0.2, 1.0), vec3(0.5, 0.1, 0.5)) * 1.4 * (1.0 - clamp(length(worldPos.xyz) / FAR_CHUNKS_DISTANCE, 0.0, 1.0)) * TEXCOORD_1.y;
-        }
+        if(COLOR.r != COLOR.g && COLOR.g != COLOR.b){
+            worldPos.xyz += calcmove(ajp, 0.0040, 0.0064, 0.0043, 0.0035, 0.0037, 0.0041, vec3(1.0, 0.2, 1.0), vec3(0.5, 0.1, 0.5)) * (1.0 - clamp(length(worldPos.xyz) / FAR_CHUNKS_DISTANCE, 0.0, 1.0)) * TEXCOORD_1.y;
+        }  
     #endif
 
     #if !defined(SEASONS) && !defined(ALPHA_TEST)
-        if(COLOR.a > 0.6 && COLOR.a < 0.7){
-            worldPos.y += sin(TOTAL_REAL_WORLD_TIME * 4.0 + ajp.x + ajp.z + ajp.y) * 0.06 * fract(POSITION.y);
+        if(COLOR.a > 0.5 && COLOR.a < 0.7){
+            worldPos.y += sin(TOTAL_REAL_WORLD_TIME * 4.0 + ajp.x + ajp.z + ajp.y) * 0.03 * fract(POSITION.y);
         }
     #endif
-
-    if(FOG_CONTROL.x <= 0.0){
-        worldPos.xyz += sin(TOTAL_REAL_WORLD_TIME * 4.0 + ajp.x + ajp.z + ajp.y) * 0.03;
-    }
 
     vec4 pos = WORLDVIEW * worldPos;
         pos = PROJ * pos;

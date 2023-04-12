@@ -1,18 +1,18 @@
 {
     "format_version": 2,
     "header": {
-        "name": "Bicubic shaders be 3.2",
+        "name": "Bicubic shaders be 3.3",
         "description": "A shader for minecraft be",
-        "uuid": "c060458e-9d08-4e91-b3ff-b2a244209c50",
-        "version": [0, 3, 2],
+        "uuid": "8be45b87-0279-4c5d-847c-9ce758c664c5",
+        "version": [0, 3, 3],
         "min_engine_version": [1, 18, 12]
     },
     "modules": [
         {
             "description": "A shader for minecraft be",
             "type": "resources",
-            "uuid": "3c4283e0-48ca-407f-ab75-2a4c754b9382",
-            "version": [0, 3, 2]
+            "uuid": "7260bb88-413d-4aaf-8739-158048901856",
+            "version": [0, 3, 3]
         }
     ]
 }
