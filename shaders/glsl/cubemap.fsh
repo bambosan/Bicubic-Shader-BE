@@ -43,17 +43,17 @@ vec3 jodieTonemap(vec3 c){
 }
 
 vec3 sunColor(float sunAngle){
-    sunAngle = clamp(sin(sunAngle) + 0.1, 0.0, 1.0);
+    sunAngle = clamp(sunAngle + 0.1, 0.0, 1.0);
     return vec3((1.0 - sunAngle) + sunAngle, sunAngle, sunAngle * sunAngle) * exp2(log2(sunAngle) * 0.6);
 }
 
 vec3 moonColor(float sunAngle){
-    sunAngle = clamp(-sin(sunAngle), 0.0, 1.0);
+    sunAngle = clamp(-sunAngle, 0.0, 1.0);
     return vec3((1.0 - sunAngle) * 0.2 + sunAngle, sunAngle, sunAngle) * exp2(log2(sunAngle) * 0.6) * 0.05;
 }
 
 vec3 zenithColor(float sunAngle){
-    sunAngle = clamp(sin(sunAngle), 0.0, 1.0);
+    sunAngle = clamp(sunAngle, 0.0, 1.0);
     return vec3(0.0, sunAngle * 0.13 + 0.003, sunAngle * 0.5 + 0.01);
 }
 
@@ -113,14 +113,14 @@ void main(){
     vec3 sunPos = normalize(vec3(cos(sunAngle), sin(sunAngle), 0.0));
     vec3 pos = normalize(vec3(position.x, -position.y + 0.127, -position.z));
 
-    vec3 color = mix(zenithColor(sunAngle), saturation(sunColor(sunAngle) + moonColor(sunAngle), 0.5), exp(-clamp(pos.y, 0.0, 1.0) * 5.0));
+    vec3 color = mix(zenithColor(sunPos.y), saturation(sunColor(sunPos.y) + moonColor(sunPos.y), 0.5), exp(-clamp(pos.y, 0.0, 1.0) * 5.0));
 
-        color += sunColor(sunAngle) * exp(-distance(pos, sunPos) * 2.0) * exp(-clamp(pos.y, 0.0, 1.0) * 2.0) * 5.0;
-        color += moonColor(sunAngle) * exp(-distance(pos, -sunPos) * 2.0) * exp(-clamp(pos.y, 0.0, 1.0) * 2.0) * 5.0;
+        color += sunColor(sunPos.y) * exp(-distance(pos, sunPos) * 2.0) * exp(-clamp(pos.y, 0.0, 1.0) * 2.0) * 5.0;
+        color += moonColor(sunPos.y) * exp(-distance(pos, -sunPos) * 2.0) * exp(-clamp(pos.y, 0.0, 1.0) * 2.0) * 5.0;
 
-        color += sunColor(sunAngle) * smoothstep(0.999, 1.0, dot(pos, sunPos)) * 100.0 * pow(clamp(pos.y, 0.0, 1.0), 0.8);
-        color += moonColor(sunAngle) * smoothstep(0.999, 1.0, dot(pos, -sunPos)) * 100.0 * pow(clamp(pos.y, 0.0, 1.0), 0.8);
-        color = renderCloud(color, pos, sunPos, sunAngle);
+        color += sunColor(sunPos.y) * smoothstep(0.999, 1.0, dot(pos, sunPos)) * 100.0 * pow(clamp(pos.y, 0.0, 1.0), 0.8);
+        color += moonColor(sunPos.y) * smoothstep(0.999, 1.0, dot(pos, -sunPos)) * 100.0 * pow(clamp(pos.y, 0.0, 1.0), 0.8);
+        color = renderCloud(color, pos, sunPos, sunPos.y);
 
         color = mix(color, linColor(FOG_COLOR.rgb), max(step(FOG_CONTROL.x, 0.0), smoothstep(0.6, 0.3, FOG_CONTROL.x)));
 
