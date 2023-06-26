@@ -52,7 +52,6 @@ float fbm(vec2 pos, float pDens){
 }
 // random, noise, fbm
 
-
 float dStars(vec3 pos){
     pos = floor(pos * 265.0);
     return smoothstep(0.9975, 1.0, hash(pos.x + pos.y * 157.0 + pos.z * 113.0));
