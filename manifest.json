@@ -2,16 +2,16 @@
     "format_version": 2,
     "header": {
         "name": "Bicubic Shaders BE 3.4",
-        "description": "A shader for Minecraft: Bedrock Edition",
-        "uuid": "f40d310f-051a-4f08-a678-948a554c072e",
+        "description": "A shader for Minecraft: Bedrock Edition\nBy: @bamb0san",
+        "uuid": "567ee84c-6f11-458b-ab17-5905602b601d",
         "version": [0, 3, 4],
-        "min_engine_version": [1, 18, 12]
+        "min_engine_version": [1, 20, 15]
     },
     "modules": [
         {
-            "description": "A shader for Minecraft: Bedrock Edition",
+            "description": "A shader for Minecraft: Bedrock Edition\nBy: @bamb0san",
             "type": "resources",
-            "uuid": "76dbe828-0c2d-479b-b4e9-f8e01aaf5fa8",
+            "uuid": "acc9a536-32d6-4f6b-b8c3-9e5928d0b3cc",
             "version": [0, 3, 4]
         }
     ]

@@ -66,12 +66,12 @@ vec3 getSunC(float sunH){
 
 vec3 getMoonC(float sunH){
     sunH = saturate(-sunH);
-    return vec3(fma((1.0 - sunH), 0.2, sunH), sunH, sunH) * pow(sunH, 0.6);
+    return vec3((1.0 - sunH) * 0.2 + sunH, sunH, sunH) * pow(sunH, 0.6);
 }
 
 vec3 getZenC(float sunH){
     sunH = pow(saturate(sunH + 0.1), 0.6);
-    return vec3(0.0, fma(sunH, 0.12, 0.0001), fma(sunH, 0.5, 0.0005));
+    return vec3(0.0, sunH * 0.12 + 0.0001, sunH * 0.5 + 0.0005);
 }
 
 float getMie(vec3 lightPos, vec3 pos){
@@ -85,12 +85,12 @@ void main(){
     // sun angle
 
     vec3 sunP = normalize(vec3(cos(sunA), sin(sunA), 0.0));
-    vec3 nPos = normalize(vec3(v_position.x, -v_position.y + 0.2, -v_position.z));
+    vec3 nPos = normalize(vec3(v_position.x, -v_position.y, -v_position.z));
 
     vec3 sunC = getSunC(sunP.y);
     vec3 moonC = getMoonC(sunP.y);
     vec3 zenC = getZenC(sunP.y);
-    vec3 horC = fma(moonC, vec3(0.0, 0.1, 0.2), sunC);
+    vec3 horC = moonC * vec3(0.0, 0.1, 0.2) + sunC;
         horC = cSatur(horC, 0.5);
 
     vec3 color = mix(zenC, horC, exp(-saturate(nPos.y) * 4.0) * 0.25);

@@ -9,7 +9,7 @@ uniform vec4 FogColor;
 uniform mat4 CubemapRotation;
 
 void main() {
-    gl_Position = mul(u_modelViewProj, mul(CubemapRotation, vec4(a_position, 1.0)));
+    gl_Position = mul(u_modelViewProj, vec4(a_position.x, a_position.y + 0.205, a_position.z, 1.0));
     v_position.xyz = a_position.xyz;
     v_position.w = ViewPositionAndTime.w;
     v_fogColor = FogColor;

@@ -34,7 +34,7 @@ void main() {
     color = a_color0;
 #endif
 
-    v_worldPos = vec4(worldPos, 1.0);
+    v_worldPos = worldPos;
     v_position.xyz = a_position.xyz;
     v_position.w = saturate((((length(worldPos.xyz) / FogAndDistanceControl.z) - FogAndDistanceControl.x) / (FogAndDistanceControl.y - FogAndDistanceControl.x)));
     v_texcoord0 = a_texcoord0;

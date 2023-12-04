@@ -80,12 +80,12 @@ vec3 getSunC(float sunH){
 
 vec3 getMoonC(float sunH){
     sunH = saturate(-sunH);
-    return vec3(fma((1.0 - sunH), 0.2, sunH), sunH, sunH) * pow(sunH, 0.6);
+    return vec3((1.0 - sunH) * 0.2 + sunH, sunH, sunH) * pow(sunH, 0.6);
 }
 
 vec3 getZenC(float sunH){
     sunH = pow(saturate(sunH + 0.1), 0.6);
-    return vec3(0.0, fma(sunH, 0.12, 0.0001), fma(sunH, 0.5, 0.0005));
+    return vec3(0.0, sunH * 0.12 + 0.0001, sunH * 0.5 + 0.0005);
 }
 
 float getMie(vec3 lPos, vec3 pos){
@@ -176,7 +176,7 @@ void main(){
     vec3 sunC = getSunC(sunP.y);
     vec3 moonC = getMoonC(sunP.y);
     vec3 zenC = getZenC(sunP.y);
-    vec3 horC = fma(moonC, vec3(0.0, 0.1, 0.2), sunC);
+    vec3 horC = moonC * vec3(0.0, 0.1, 0.2) + sunC;
         horC = cSatur(horC, 0.5);
 
     float rain = smoothstep(0.6, 0.3, FogAndDistanceControl.x);
@@ -186,14 +186,14 @@ void main(){
 
     float glowT = float(texture2DLod(s_MatTexture, v_texcoord0, 0.0).a > 0.91 && texture2DLod(s_MatTexture, v_texcoord0, 0.0).a < 0.93) * mix(2.0, 0.0, v_position.w);
     
-    bool isNeth = texelFetch(s_LightMapTexture, ivec2(0, 0), 0).r > 0.5 && texelFetch(s_LightMapTexture, ivec2(0, 0), 0).r < 0.52;
-    bool isEndw = texelFetch(s_LightMapTexture, ivec2(0, 0), 0).r > 0.42 && texelFetch(s_LightMapTexture, ivec2(0, 0), 0).r < 0.44;
+    bool isNeth = texture2D(s_LightMapTexture, vec2(0, 0)).r > 0.5 && texture2D(s_LightMapTexture, vec2(0, 0)).r < 0.52;
+    bool isEndw = texture2D(s_LightMapTexture, vec2(0, 0)).r > 0.42 && texture2D(s_LightMapTexture, vec2(0, 0)).r < 0.44;
 
     vec3 ambVL = texture2D(s_LightMapTexture, vec2(0.0, v_lightmapUV.y)).rgb;
     vec3 ambL = mix(cSatur(zenC, 0.3) * 2.0 * ambVL, ambVL * 0.25, max(float(isNeth), float(isEndw)));
         ambL += glowT;
         ambL += mix(horC, FogColor.rgb * FogColor.rgb, rain) * shMap;
-        ambL += mix(vec3(1.0, 0.7, 0.4), vec3(1.0, 0.5, 0.6), float(isEndw)) * fma(bLight * bLight, 0.25, pow(bLight, 16.0) * 5.0);
+        ambL += mix(vec3(1.0, 0.7, 0.4), vec3(1.0, 0.5, 0.6), float(isEndw)) * ((bLight * bLight) * 0.25 + pow(bLight, 16.0) * 5.0);
 
     diffuse.rgb = cSatur(diffuse.rgb, 1.0 - (pow(saturate(-sunP.y), 0.7) * v_lightmapUV.y) * 0.5);
     diffuse.rgb *= ambL;
@@ -214,7 +214,7 @@ void main(){
 
     bool isWat = false;
     #if !defined(SEASONS) && !defined(ALPHA_TEST)
-        if(v_color0.a > 0.5 && v_color0.a < 0.7){
+        if(v_color0.a > 0.4 && v_color0.a < 0.6){
             isWat = true;
             diffuse.rgb *= 0.0;
 
